@@ -1,0 +1,103 @@
+sync
+pids 0x01 0x1
+data of size 0
+checksum
+twosComplement(): original = 1f1
+twosComplement(): pattern = ffff
+twosComplement(): complement = fe0f
+done
+sync
+pids 0x02 0x1
+data of size 0
+checksum
+twosComplement(): original = 1f2
+twosComplement(): pattern = ffff
+twosComplement(): complement = fe0e
+done
+sync
+pids 0x02 0x3
+data of size 0
+checksum
+twosComplement(): original = 1f4
+twosComplement(): pattern = ffff
+twosComplement(): complement = fe0c
+done
+sync
+pids 0xf0 0x1
+data of size 0
+checksum
+twosComplement(): original = 2e0
+twosComplement(): pattern = ffff
+twosComplement(): complement = fd20
+done
+sync
+pids 0xf0 0x2
+data of size 0
+checksum
+twosComplement(): original = 2e1
+twosComplement(): pattern = ffff
+twosComplement(): complement = fd1f
+done
+sync
+pids 0xf0 0x3
+data of size 0
+checksum
+twosComplement(): original = 2e2
+twosComplement(): pattern = ffff
+twosComplement(): complement = fd1e
+done
+sync
+pids 0xf0 0x21
+data of size 0
+checksum
+twosComplement(): original = 300
+twosComplement(): pattern = ffff
+twosComplement(): complement = fd00
+done
+Sent 8 bytes: SYNC1 = f5 SYNC2 = fa
+PID1 = f0 PID2 = 21
+LEN_MSB = 0 LEN_LSB = 0
+CHECKSUM_MSB = fd CHECKSUM_LSB = 0
+ DATA LENGTH = 0
+
+total response packet data size: 0
+in Packet::fromByteArray
+dataLength: 0
+twosComplement(): original = 2ee
+twosComplement(): pattern = ffff
+twosComplement(): complement = fd12
+Sent 8 bytes: SYNC1 = f5 SYNC2 = fa
+PID1 = 2 PID2 = 3
+LEN_MSB = 0 LEN_LSB = 0
+CHECKSUM_MSB = fe CHECKSUM_LSB = c
+ DATA LENGTH = 0
+
+total response packet data size: 3136
+offset at 520
+Ask for 520 bytes
+read 520 bytes in step
+offset at 1040
+Ask for 520 bytes
+read 520 bytes in step
+offset at 1560
+Ask for 520 bytes
+read 520 bytes in step
+offset at 2080
+Ask for 520 bytes
+read 520 bytes in step
+offset at 2600
+Ask for 520 bytes
+read 520 bytes in step
+offset at 3120
+Ask for 24 bytes
+read 24 bytes in step
+offset at 3144
+in Packet::fromByteArray
+dataLength: 3136
+twosComplement(): original = 8b2
+twosComplement(): pattern = ffff
+twosComplement(): complement = f74e
+3144
+ping
+True
+fnished
