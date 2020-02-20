@@ -16,6 +16,7 @@ class AmptekPX5(Device):
     timeout_seconds = device_property(dtype=float, default_value=1)
     detector_model = device_property(dtype=str, default_value="CdTe")
     connection_mode = device_property(dtype=str, default_value="UDP")
+   
 
     MaxInfoAge = attribute(label = "MaxInfoAge", dtype=float,
                             fget = "get_maxinfoage", fset = "set_maxinfoage")
@@ -103,7 +104,10 @@ class AmptekPX5(Device):
                       fget=lambda self: self.GetTecVoltage(self._max_info_age))
 
 
-
+    CalibrationSlope = attribute(label="CalibrationSlope", dtype=float,
+                      fget=lambda self: self._calibrationslope, fset = "set_calibrationslope")
+    CalibrationOffset = attribute(label="CalibrationOffset", dtype=float,
+                      fget=lambda self: self._calibrationoffset, fset = "set_calibrationoffset")
 
     def init_device(self):
         Device.init_device(self)
@@ -117,6 +121,9 @@ class AmptekPX5(Device):
             self.interface.connectSimulator()
         else:
             raise RuntimeError("connection_mode must be 'USB' or 'UDP' or 'Simulator'")
+        
+        self._calibrationoffset = 0
+        self._calibrationslope = 1.
         self.parameter_dicts = OrderedDict()
         self.basic_params = OrderedDict() 
         self.basic_params["CLCK"] = { "value": "N/A", "name": "Clock" , "options" : ["20", "80", "AUTO"] }
@@ -499,6 +506,14 @@ class AmptekPX5(Device):
     def GetTecVoltage(self, max_age_ms):
         return self.interface.TecVoltage( max_age_ms )
 
+
+
+    def set_calibrationslope(self, val):
+        self._calibrationslope = val
+
+    def set_calibrationoffset(self, val):
+        self._calibrationoffset = val
+
     def get_firmwaremajor(self):
         return self.interface.FirmwareMajor()
 
@@ -564,7 +579,6 @@ class AmptekPX5(Device):
             return tango.DevState.ALARM
             
         enabled = self.IsEnabled(self._max_info_age)
-        print('enabled? ', enabled)
         if enabled:
             self.set_state(tango.DevState.MOVING) 
         else:
