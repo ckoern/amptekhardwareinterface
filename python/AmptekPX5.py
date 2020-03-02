@@ -228,6 +228,8 @@ class AmptekPX5(Device):
         for _,c in self.parameter_dicts.items():
             self.load_config_dict(c)
 
+
+
     def load_config_dict( self, configs ):
         cmd_strings = []
         for cmd, setting in configs.items():
@@ -646,15 +648,15 @@ class AmptekPX5(Device):
                                 fw_build = self.get_firmwarebuild(),
                                 fpga_major = self.get_fpgamajor(),
                                 fpga_minor = self.get_fpgaminor(),
-                                fastcount = self.get_fastcount(),
-                                slowcount = self.get_slowcount(),
-                                dead_time_pct = self.get_deadtime(),
-                                acc_time=self.get_acctime(),
-                                real_time = self.get_realtime(),
-                                dead_time = self.get_deadtime(),
-                                high_volt = self.get_highvoltage(),
-                                detector_temp = self.get_detectortemp(),
-                                board_temp = self.get_boardtemp()
+                                fastcount = self.GetFastCount(self._max_info_age),
+                                slowcount = self.GetSlowCount(self._max_info_age),
+                                dead_time_pct = self.GetDeadtime(self._max_info_age),
+                                acc_time=self.GetAcctime(self._max_info_age),
+                                real_time = self.GetRealtime(self._max_info_age),
+                                dead_time = self.GetDeadtime(self._max_info_age),
+                                high_volt = self.GetHighVoltage(self._max_info_age),
+                                detector_temp = self.GetDetectorTemp(self._max_info_age),
+                                board_temp = self.GetBoardTemp(self._max_info_age)
                             )
         except:
             self._max_info_age = tmp_max_info_age
@@ -681,7 +683,7 @@ class AmptekPX5(Device):
 
     def create_data_string(self):
         outstring = "<<DATA>>\n"
-        outstring += "\n".join([str(c) for c in self.get_spectrum()] ) + "\n"
+        outstring += "\n".join([str(c) for c in self.GetSpectrum(self._max_info_age)] ) + "\n"
         outstring += "<<END>>\n"
         return outstring
 
