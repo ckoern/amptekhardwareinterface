@@ -24,7 +24,7 @@ _AmptekHardwareInterface = Extension("_AmptekHardwareInterface",
 # NumyTypemapTests setup
 setup(  name        = "AmptekHardwareInterface function",
         description = "Implementation of the Amptek DP5 Protocol",
-
+        scripts     = ["python/AmptekPX5.py"],
         author      = "Christian Koernig",
         version     = "0.1",
         ext_modules = [_AmptekHardwareInterface]
