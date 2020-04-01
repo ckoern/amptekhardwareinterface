@@ -91,15 +91,21 @@ Packet AmptekSimulatorConnectionHandler::sendAndReceive( const Packet& request){
     {
         p.setPid1( PX5_RESPONSE_CONFIG );
         p.setPid2( PX5_RESPONSE_CONFIG_TEXT );
-        std::stringstream configs;
 
-        configs << "MCAC=" << std::to_string(speclen) << ";PRET=";
-        if (acquisition_time > 0){
-            configs << std::setw(2) << std::fixed << acquisition_time;
-        } else{
-            configs << "OFF";
-        }
-        string configstring = configs.str();
+        char configs[ request.dataLength + 1 ];
+        byteToChar( (byte*)&(request.at(DATA)), configs, request.dataLength );
+        std::cout << configs << std::endl;
+        string configstring = buildConfigResponse(configs);
+        std::cout << configstring << std::endl;
+        // std::stringstream configs;
+
+        // configs << "MCAC=" << std::to_string(speclen) << ";PRET=";
+        // if (acquisition_time > 0){
+        //     configs << std::setw(2) << std::fixed << acquisition_time;
+        // } else{
+        //     configs << "OFF";
+        // }
+        // string configstring = configs.str();
         word16 len =  configstring.size();
         byte arr[len];
         charToByte(configstring.c_str(), arr, len);
@@ -272,12 +278,25 @@ void AmptekSimulatorConnectionHandler::readConfig(char* configs){
                     acquisition_time = std::stod( config_value );
                 }
             }
-            else{
-                std::cout << "Ignored config " << config_name << " with value "<< config_value << std::endl;
-            }
+            text_configs[config_name] = config_value;
 
         }catch(...){
             std::cerr << "Failed reading config " << configline << std::endl;
         }
     }
+}
+
+std::string  AmptekSimulatorConnectionHandler::buildConfigResponse(char* config_names){
+    std::string config_name;
+    std::stringstream configname_stream(config_names);
+    std::stringstream configresponse_stream;
+    while(std::getline(configname_stream, config_name, ';')){
+        try{
+            configresponse_stream << config_name << "=" << text_configs[config_name] << ";";
+        }
+        catch(...){
+            std::cerr << "Failed reading config " << config_name << std::endl;
+        }
+    }
+    return configresponse_stream.str();
 }

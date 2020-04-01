@@ -16,6 +16,7 @@ class AmptekPX5(Device):
     timeout_seconds = device_property(dtype=float, default_value=1)
     detector_model = device_property(dtype=str, default_value="CdTe")
     connection_mode = device_property(dtype=str, default_value="UDP")
+    configuration_file = device_property(dtype=str, default_value="")
    
 
     MaxInfoAge = attribute(label = "MaxInfoAge", dtype=float,
@@ -225,9 +226,13 @@ class AmptekPX5(Device):
             for name,_ in c.items():
                 self.param_names_in_correct_order.append(name)
 
+        
+
+        if self.configuration_file != "" and os.path.exists(self.configuration_file):
+            self.LoadConfigurationFile(self.configuration_file)
+
         for _,c in self.parameter_dicts.items():
             self.load_config_dict(c)
-
 
 
     def load_config_dict( self, configs ):

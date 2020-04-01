@@ -3,6 +3,8 @@
 
 #include "AmptekConnectionHandler.h"
 #include <thread>         // std::thread
+#include <map>
+
 #define STATUS_SIZE 64
 class AmptekSimulatorConnectionHandler : public AmptekConnectionHandler{
 public:
@@ -13,6 +15,7 @@ public:
 
 private:
     void readConfig(char* configs);
+    std::string buildConfigResponse(char* config_names);
     void createStatusData(byte* buffer);
     void createSpectrumData(byte* buffer);
     void enable();
@@ -22,6 +25,8 @@ private:
     unsigned int* spectrum;
     uint32_t total_counts;
     double acc_time = 0;
+
+    std::map<std::string, std::string> text_configs;
 
     bool is_running = true;
     bool is_enabled = false;
