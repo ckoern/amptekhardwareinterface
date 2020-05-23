@@ -61,7 +61,7 @@ bool AmptekHardwareInterface::statusAgeOk( double max_age_ms ) const {
 
 bool AmptekHardwareInterface::Enable(){
     try{
-        expectAcknowledge( connection_handler->sendAndReceive( Packet::PX5_REQUEST_ENABLE ) );
+        expectAcknowledge( connection_handler->sendAndReceive( Packet::DP5_PKT_REQUEST_ENABLE ) );
     }
     catch( AmptekException& e){
         std::cerr << e.what() << std::endl;
@@ -75,7 +75,7 @@ bool AmptekHardwareInterface::Enable(){
 
 bool AmptekHardwareInterface::Disable(){
     try{
-        expectAcknowledge( connection_handler->sendAndReceive( Packet::PX5_REQUEST_DISABLE ) );
+        expectAcknowledge( connection_handler->sendAndReceive( Packet::DP5_PKT_REQUEST_DISABLE ) );
     }
     catch( AmptekException& e){
         std::cerr << e.what() << std::endl;
@@ -86,7 +86,7 @@ bool AmptekHardwareInterface::Disable(){
 }
 bool AmptekHardwareInterface::Ping(){
     try{
-        expectAcknowledge( connection_handler->sendAndReceive( Packet::PX5_REQUEST_KEEP_ALIVE_NO_SHARING ) );
+        expectAcknowledge( connection_handler->sendAndReceive( Packet::DP5_PKT_REQUEST_KEEP_ALIVE_NO_SHARING ) );
     }
     catch( AmptekException& e){
         std::cerr << e.what() << std::endl;
@@ -98,7 +98,7 @@ bool AmptekHardwareInterface::Ping(){
 
 bool AmptekHardwareInterface::ClearSpectrum(){
     try{
-        expectAcknowledge( connection_handler->sendAndReceive( Packet::PX5_REQUEST_CLEAR_SPECTRUM ) );
+        expectAcknowledge( connection_handler->sendAndReceive( Packet::DP5_PKT_REQUEST_CLEAR_SPECTRUM ) );
     }
     catch( AmptekException& e){
         std::cerr << e.what() << std::endl;
@@ -198,8 +198,8 @@ std::vector<std::string> AmptekHardwareInterface::GetTextConfiguration(std::vect
             {
                 Packet settingResponse = connection_handler->sendAndReceive( Packet::gernerateGetConfigurationRequest( cmdstream.str() ) );
                 
-                if (settingResponse.at(PID1) != PX5_RESPONSE_CONFIG
-                || settingResponse.at(PID2) != PX5_RESPONSE_CONFIG_TEXT)
+                if (settingResponse.at(PID1) != DP5_P1_DATA_RESPONSE
+                || settingResponse.at(PID2) != DP5_P2_DATA_RESPONSE_CONFIG_READBACK)
                 {
                     throw AmptekException("Failed in AmptekHardwareInterface::GetTextConfiguration: \
                                                 Response Packet did not match expected PIDs. \n\
@@ -219,10 +219,10 @@ std::vector<std::string> AmptekHardwareInterface::GetTextConfiguration(std::vect
 
 bool AmptekHardwareInterface::updateStatus(double max_age_ms){
     if ( !statusAgeOk(max_age_ms)){
-        Packet statusResponse = connection_handler->sendAndReceive( Packet::PX5_REQUEST_STATUS );
+        Packet statusResponse = connection_handler->sendAndReceive( Packet::DP5_PKT_REQUEST_STATUS );
         //std::cout << statusResponse.size() << std::endl;
-        if (statusResponse.at(PID1) != PX5_RESPONSE_STATUS
-          || statusResponse.at(PID2) != PX5_RESPONSE_STATUS_INFO)
+        if (statusResponse.at(PID1) != DP5_P1_STATUS_RESPONSE
+          || statusResponse.at(PID2) != DP5_P2_STATUS_RESPONSE_INFO)
         {
               std::cerr<< "Response Packet did not match expected PIDs: " << statusResponse.toString() << std::endl;
               return false;
@@ -238,49 +238,49 @@ bool AmptekHardwareInterface::updateStatus(double max_age_ms){
 
 bool AmptekHardwareInterface::updateSpectrum(double max_age_ms){
     if ( !spectrumAgeOk(max_age_ms)){
-        Packet spectrumResponse = connection_handler->sendAndReceive( Packet::PX5_REQUEST_SPECTRUM_AND_STATUS );
+        Packet spectrumResponse = connection_handler->sendAndReceive( Packet::DP5_PKT_REQUEST_SPECTRUM_AND_STATUS );
         //std::cout << spectrumResponse.size() << std::endl;
-        if (spectrumResponse.at(PID1) != PX5_RESPONSE_SPECTRUM )
+        if (spectrumResponse.at(PID1) != DP5_P1_SPECTRUM_RESPONSE )
         {
               std::cerr<< "Response Packet is not of type Spectrum: " << spectrumResponse.toString() << std::endl;
               return false;
         }
         bool with_status = true;
         switch( spectrumResponse.at(PID2) ){
-            case PX5_RESPONSE_SPECTRUM256:
+            case DP5_P2_SPECTRUM_RESPONSE_SPECTRUM256:
                 with_status = false;        // not break! use the respose with status setting the length
-            case PX5_RESPONSE_SPECTRUM256_STATUS:
+            case DP5_P2_SPECTRUM_SPECTRUM256_STATUS:
                 spectrum_length=256;
                 break;
 
-            case PX5_RESPONSE_SPECTRUM512:
+            case DP5_P2_SPECTRUM_RESPONSE_SPECTRUM512:
                 with_status = false;        // not break! use the respose with status setting the length
-            case PX5_RESPONSE_SPECTRUM512_STATUS:
+            case DP5_P2_SPECTRUM_RESPONSE_SPECTRUM512_STATUS:
                 spectrum_length=512;
                 break;
 
-            case PX5_RESPONSE_SPECTRUM1024:
+            case DP5_P2_SPECTRUM_RESPONSE_SPECTRUM1024:
                 with_status = false;        // not break! use the respose with status setting the length
-            case PX5_RESPONSE_SPECTRUM1024_STATUS:
+            case DP5_P2_SPECTRUM_RESPONSE_SPECTRUM1024_STATUS:
                 spectrum_length=1024;
                 break;
 
-            case PX5_RESPONSE_SPECTRUM2048:
+            case DP5_P2_SPECTRUM_RESPONSE_SPECTRUM2048:
                 with_status = false;        // not break! use the respose with status setting the length
-            case PX5_RESPONSE_SPECTRUM2048_STATUS:
+            case DP5_P2_SPECTRUM_RESPONSE_SPECTRUM2048_STATUS:
                 spectrum_length=2048;
                 break;
 
-            case PX5_RESPONSE_SPECTRUM4096:
+            case DP5_P2_SPECTRUM_RESPONSE_SPECTRUM4096:
                 with_status = false;        // not break! use the respose with status setting the length
-            case PX5_RESPONSE_SPECTRUM4096_STATUS:
+            case DP5_P2_SPECTRUM_RESPONSE_SPECTRUM4096_STATUS:
                 spectrum_length=4096;
                 break;
 
             
-            case PX5_RESPONSE_SPECTRUM8192:
+            case DP5_P2_SPECTRUM_RESPONSE_SPECTRUM8192:
                 with_status = false;        // not break! use the respose with status setting the length
-            case PX5_RESPONSE_SPECTRUM8192_STATUS:
+            case DP5_P2_SPECTRUM_RESPONSE_SPECTRUM8192_STATUS:
                 spectrum_length=8192;
                 break;
         }
@@ -466,46 +466,46 @@ double AmptekHardwareInterface::TecVoltage(double max_age_ms){
 
 
 void AmptekHardwareInterface::expectAcknowledge(Packet packet){
-    if (packet.at(PID1) != PX5_ACK){
+    if (packet.at(PID1) != DP5_P1_ACK){
         throw AmptekException("Response Package was not an Acknowledge: " + packet.toString());
     }else{
-        if (   packet.at(PID2) == PX5_ACK_OK
-            || packet.at(PID2) == PX5_ACK_OK_SHARING
-            || packet.at(PID2) == PX5_ACK_OK_FPGAADDR){
+        if (   packet.at(PID2) == DP5_P2_ACK_OK
+            || packet.at(PID2) == DP5_P2_ACK_OK_SHARING
+            || packet.at(PID2) == DP5_P2_ACK_OK_FPGAADDR){
             return;
         }else{
             std::string error_msg;
             char databuffer[packet.dataLength];
             switch (packet.at(PID2) ){
 
-                case PX5_ACK_SYNC_ERR:
+                case DP5_P2_ACK_SYNC_ERR:
                     error_msg = "Sync bytes in Request Packet were not correct, \
                                                         and therefore, the Request Packet was rejected.";
                     break;
-                case PX5_ACK_PID_ERR:
+                case DP5_P2_ACK_PID_ERR:
                     error_msg =  "PID1 & PID2 combination is not recognized as a valid \
                                                      Request Packet, and therefore, the Request Packet was rejected.";
                     break;
 
-                case PX5_ACK_LEN_ERR:
+                case DP5_P2_ACK_LEN_ERR:
                     error_msg = "LEN field of the Request Packet was not consistent with \
                                                      Request Packet type defined by the PID1 & PID2 combination. \
                                                      It is not recognized as a valid Request Packet, \
                                                      and therefore, the Request Packet was rejected.";
                     break;
 
-                case PX5_ACK_CHECKSUM_ERR:
+                case DP5_P2_ACK_CHECKSUM_ERR:
                     error_msg = "Checksum of the Request Packet was incorrect, \
                                                      and therefore, the Request Packet was rejected.";
                     break;
 
 
-                case PX5_ACK_BADPARAM_ERR:
+                case DP5_P2_ACK_BADPARAM_ERR:
                     error_msg = "Bad parameter.";
                     break;
 
 
-                case PX5_ACK_BADHEX_ERR:
+                case DP5_P2_ACK_BADHEX_ERR:
                     error_msg = "Microcontroller or FPGA upload packets error: \
                                                      hex record contained in the data field \
                                                      of the Request Packet had a checksum or other structural error.";
@@ -513,7 +513,7 @@ void AmptekHardwareInterface::expectAcknowledge(Packet packet){
 
 
 
-                case PX5_ACK_BADCMD_ERR:
+                case DP5_P2_ACK_BADCMD_ERR:
                     
                     byteToChar(&(packet.at(DATA)), databuffer, packet.dataLength);
                     error_msg ="Unrecognized command: " + std::string(databuffer);
@@ -521,20 +521,20 @@ void AmptekHardwareInterface::expectAcknowledge(Packet packet){
 
 
 
-                case PX5_ACK_FPGA_ERR:
+                case DP5_P2_ACK_FPGA_ERR:
                     error_msg =  "FPGA initialization failed.";
                     break;
 
 
 
-                case PX5_ACK_CP2201_ERR:
+                case DP5_P2_ACK_CP2201_ERR:
                     error_msg = "Set Ethernet Settings Request Packet was received, \
                                                      but an Ethernet controller was not detected on the DP5.";
                     break;
 
 
 
-                case PX5_ACK_SCOPE_ERR:
+                case DP5_P2_ACK_SCOPE_ERR:
                     error_msg = "Send Scope Data Request Packet was received, \
                                                      but the digital oscilloscope hasn’t triggered, \
                                                      so no data is available. [The digital oscilloscope must be armed, \
@@ -542,7 +542,7 @@ void AmptekHardwareInterface::expectAcknowledge(Packet packet){
                     break;
 
 
-                case PX5_ACK_PC5_ERR:
+                case DP5_P2_ACK_PC5_ERR:
                     error_msg = "ASCII command errors – the data field will contain the \
                                                      ASCII command and parameter which caused the error. “Bad Parameter” \
                                                      means that the parameter isn’t recognized \
@@ -558,24 +558,24 @@ void AmptekHardwareInterface::expectAcknowledge(Packet packet){
                     break;
                 
 
-                case PX5_ACK_BUSY_ERR:
+                case DP5_P2_ACK_BUSY_ERR:
                     error_msg = "Busy, another interface in use.";
                     break;
 
-                case PX5_ACK_I2C_ERR:
+                case DP5_P2_ACK_I2C_ERR:
                     error_msg =  "‘I2C Transfer’ Request Packet, but no I2C ACK \
                                                      was detected from an I2C Slave.";
                     break;
 
 
-                case PX5_ACK_VERSION_ERR:
+                case DP5_P2_ACK_VERSION_ERR:
                     error_msg ="Request Packet has been recognized as valid by the firmware, \
                                                      but it is not supported by the installed FPGA version. \
                                                      Update the FPGA to the latest FP version.";
                     break;
                     
 
-                case PX5_ACK_CALIB_ERR:
+                case DP5_P2_ACK_CALIB_ERR:
                     error_msg = "Calibration Error";
                     break;
                 default:

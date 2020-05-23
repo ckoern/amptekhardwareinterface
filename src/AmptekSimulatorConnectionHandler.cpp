@@ -12,28 +12,28 @@ Packet AmptekSimulatorConnectionHandler::sendAndReceive( const Packet& request){
 
     Packet p(MIN_PACKET_LEN);
     p.initSync();
-    if (pid1 == Packet::PX5_REQUEST_SPECTRUM.at(PID1) 
-     && pid2 == Packet::PX5_REQUEST_SPECTRUM.at(PID2))
+    if (pid1 == Packet::DP5_PKT_REQUEST_SPECTRUM.at(PID1) 
+     && pid2 == Packet::DP5_PKT_REQUEST_SPECTRUM.at(PID2))
     {
-        p.setPid1( PX5_RESPONSE_SPECTRUM );
+        p.setPid1( DP5_P1_SPECTRUM_RESPONSE );
         switch (speclen){
             case 256:
-                p.setPid2( PX5_RESPONSE_SPECTRUM256 );
+                p.setPid2( DP5_P2_SPECTRUM_RESPONSE_SPECTRUM256 );
                 break;
             case 512:
-                p.setPid2( PX5_RESPONSE_SPECTRUM512 );
+                p.setPid2( DP5_P2_SPECTRUM_RESPONSE_SPECTRUM512 );
                 break;
             case 1024:
-                p.setPid2( PX5_RESPONSE_SPECTRUM1024 );
+                p.setPid2( DP5_P2_SPECTRUM_RESPONSE_SPECTRUM1024 );
                 break;
             case 2048:
-                p.setPid2( PX5_RESPONSE_SPECTRUM2048 );
+                p.setPid2( DP5_P2_SPECTRUM_RESPONSE_SPECTRUM2048 );
                 break;
             case 4096:
-                p.setPid2( PX5_RESPONSE_SPECTRUM4096 );
+                p.setPid2( DP5_P2_SPECTRUM_RESPONSE_SPECTRUM4096 );
                 break;
             case 8192:
-                p.setPid2( PX5_RESPONSE_SPECTRUM8192 );
+                p.setPid2( DP5_P2_SPECTRUM_RESPONSE_SPECTRUM8192 );
                 break;
         }
         
@@ -43,28 +43,28 @@ Packet AmptekSimulatorConnectionHandler::sendAndReceive( const Packet& request){
         p.resize( MIN_PACKET_LEN + len );
         p.setData(arr, len);
     }
-    else if (pid1 == Packet::PX5_REQUEST_SPECTRUM_AND_STATUS.at(PID1) 
-     && pid2 == Packet::PX5_REQUEST_SPECTRUM_AND_STATUS.at(PID2))
+    else if (pid1 == Packet::DP5_PKT_REQUEST_SPECTRUM_AND_STATUS.at(PID1) 
+     && pid2 == Packet::DP5_PKT_REQUEST_SPECTRUM_AND_STATUS.at(PID2))
     {
-        p.setPid1( PX5_RESPONSE_SPECTRUM );
+        p.setPid1( DP5_P1_SPECTRUM_RESPONSE );
         switch (speclen){
             case 256:
-                p.setPid2( PX5_RESPONSE_SPECTRUM256_STATUS );
+                p.setPid2( DP5_P2_SPECTRUM_SPECTRUM256_STATUS );
                 break;
             case 512:
-                p.setPid2( PX5_RESPONSE_SPECTRUM512_STATUS );
+                p.setPid2( DP5_P2_SPECTRUM_RESPONSE_SPECTRUM512_STATUS );
                 break;
             case 1024:
-                p.setPid2( PX5_RESPONSE_SPECTRUM1024_STATUS );
+                p.setPid2( DP5_P2_SPECTRUM_RESPONSE_SPECTRUM1024_STATUS );
                 break;
             case 2048:
-                p.setPid2( PX5_RESPONSE_SPECTRUM2048_STATUS );
+                p.setPid2( DP5_P2_SPECTRUM_RESPONSE_SPECTRUM2048_STATUS );
                 break;
             case 4096:
-                p.setPid2( PX5_RESPONSE_SPECTRUM4096_STATUS );
+                p.setPid2( DP5_P2_SPECTRUM_RESPONSE_SPECTRUM4096_STATUS );
                 break;
             case 8192:
-                p.setPid2( PX5_RESPONSE_SPECTRUM8192_STATUS );
+                p.setPid2( DP5_P2_SPECTRUM_RESPONSE_SPECTRUM8192_STATUS );
                 break;
         }
         
@@ -75,11 +75,11 @@ Packet AmptekSimulatorConnectionHandler::sendAndReceive( const Packet& request){
         p.resize( MIN_PACKET_LEN + len );
         p.setData(arr, len);
     }
-    else if (pid1 == Packet::PX5_REQUEST_STATUS.at(PID1) 
-     && pid2 == Packet::PX5_REQUEST_STATUS.at(PID2))
+    else if (pid1 == Packet::DP5_PKT_REQUEST_STATUS.at(PID1) 
+     && pid2 == Packet::DP5_PKT_REQUEST_STATUS.at(PID2))
     {
-        p.setPid1( PX5_RESPONSE_STATUS );
-        p.setPid2( PX5_RESPONSE_STATUS_INFO );
+        p.setPid1( DP5_P1_STATUS_RESPONSE );
+        p.setPid2( DP5_P2_STATUS_RESPONSE_INFO );
         word16 len =  STATUS_SIZE;
         byte arr[len];
         createStatusData(arr);
@@ -89,8 +89,8 @@ Packet AmptekSimulatorConnectionHandler::sendAndReceive( const Packet& request){
     else if (pid1 == 0x20 
      && pid2 == 0x03)
     {
-        p.setPid1( PX5_RESPONSE_CONFIG );
-        p.setPid2( PX5_RESPONSE_CONFIG_TEXT );
+        p.setPid1( DP5_P1_DATA_RESPONSE );
+        p.setPid2( DP5_P2_DATA_RESPONSE_CONFIG_READBACK );
 
         char configs[ request.dataLength + 1 ];
         byteToChar( (byte*)&(request.at(DATA)), configs, request.dataLength );
@@ -112,28 +112,28 @@ Packet AmptekSimulatorConnectionHandler::sendAndReceive( const Packet& request){
         p.resize( MIN_PACKET_LEN + len );
         p.setData(arr, len);
     }
-    else if( (pid1 == Packet::PX5_REQUEST_ENABLE.at(PID1) 
-              && pid2 == Packet::PX5_REQUEST_ENABLE.at(PID2)) )
+    else if( (pid1 == Packet::DP5_PKT_REQUEST_ENABLE.at(PID1) 
+              && pid2 == Packet::DP5_PKT_REQUEST_ENABLE.at(PID2)) )
     {
         enable();
-        return Packet(PX5_ACK, PX5_ACK_OK, nullptr, 0);
+        return Packet(DP5_P1_ACK, DP5_P2_ACK_OK, nullptr, 0);
     }
-    else if ( (pid1 == Packet::PX5_REQUEST_DISABLE.at(PID1) 
-              && pid2 == Packet::PX5_REQUEST_DISABLE.at(PID2)) )
+    else if ( (pid1 == Packet::DP5_PKT_REQUEST_DISABLE.at(PID1) 
+              && pid2 == Packet::DP5_PKT_REQUEST_DISABLE.at(PID2)) )
     {
         disable();
-        return Packet(PX5_ACK, PX5_ACK_OK, nullptr, 0);
+        return Packet(DP5_P1_ACK, DP5_P2_ACK_OK, nullptr, 0);
     }
-    else if (pid1 == Packet::PX5_REQUEST_CLEAR_SPECTRUM.at(PID1) 
-              && pid2 == Packet::PX5_REQUEST_CLEAR_SPECTRUM.at(PID2))
+    else if (pid1 == Packet::DP5_PKT_REQUEST_CLEAR_SPECTRUM.at(PID1) 
+              && pid2 == Packet::DP5_PKT_REQUEST_CLEAR_SPECTRUM.at(PID2))
     {
         clear();
-        return Packet(PX5_ACK, PX5_ACK_OK, nullptr, 0);
+        return Packet(DP5_P1_ACK, DP5_P2_ACK_OK, nullptr, 0);
     }
-    else if (pid1 == Packet::PX5_REQUEST_KEEP_ALIVE_NO_SHARING.at(PID1) 
-              && pid2 == Packet::PX5_REQUEST_KEEP_ALIVE_NO_SHARING.at(PID2))
+    else if (pid1 == Packet::DP5_PKT_REQUEST_KEEP_ALIVE_NO_SHARING.at(PID1) 
+              && pid2 == Packet::DP5_PKT_REQUEST_KEEP_ALIVE_NO_SHARING.at(PID2))
     {
-        return Packet(PX5_ACK, PX5_ACK_OK, nullptr, 0);
+        return Packet(DP5_P1_ACK, DP5_P2_ACK_OK, nullptr, 0);
     }
     else if(pid1 == 0x20 //set Text Config
               && pid2 == 0x02)
@@ -141,7 +141,7 @@ Packet AmptekSimulatorConnectionHandler::sendAndReceive( const Packet& request){
         char configs[ request.dataLength + 1 ];
         byteToChar( (byte*)&(request.at(DATA)), configs, request.dataLength );
         readConfig(configs);
-        return Packet(PX5_ACK, PX5_ACK_OK, nullptr, 0);
+        return Packet(DP5_P1_ACK, DP5_P2_ACK_OK, nullptr, 0);
     }
     p.calcAndFillChecksum();
     return p;

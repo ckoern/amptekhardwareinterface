@@ -129,7 +129,7 @@ bool AmptekUsbConnectionHandler::hasSerialNb(libusb_device_handle* handle, int t
         return true;
     }
     //request a status and check the serial nb 
-    Packet statusReq = Packet::PX5_REQUEST_STATUS;
+    Packet statusReq = Packet::DP5_PKT_REQUEST_STATUS;
     int bytes_transferred;
     byte* status_data = input_buffer + DATA;
     int result = libusb_bulk_transfer(handle, PX5_USB_BULK_OUT_ENDPOINT, &(statusReq.at(0)), statusReq.size(), &bytes_transferred, 1000);

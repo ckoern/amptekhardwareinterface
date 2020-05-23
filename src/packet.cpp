@@ -2,31 +2,54 @@
 #include <iostream>
 #include <iomanip>
 #include <algorithm>
-const Packet Packet::PX5_REQUEST_STATUS = Packet(0x01,0x01, nullptr, 0);
-
-const Packet Packet::PX5_REQUEST_SPECTRUM = Packet(0x02,0x01, nullptr, 0);
-const Packet Packet::PX5_REQUEST_SPECTRUM_AND_STATUS = Packet(0x02,0x03, nullptr, 0);
 
 
+const Packet Packet::DP5_PKT_REQUEST_STATUS                = Packet( DP5_P1_STATUS_REQUEST      , DP5_P2_STATUS_REQUEST_INFO                , nullptr, 0);
 
-const Packet Packet::PX5_REQUEST_CLEAR_SPECTRUM = Packet(0xF0,0x01, nullptr, 0);
-const Packet Packet::PX5_REQUEST_ENABLE = Packet(0xF0,0x02, nullptr, 0);
-const Packet Packet::PX5_REQUEST_DISABLE = Packet(0xF0,0x03, nullptr, 0);
+const Packet Packet::DP5_PKT_REQUEST_SPECTRUM              = Packet( DP5_P1_SPECTRUM_REQUEST    , DP5_P2_SPECTRUM_REQUEST_SPECTRUM          , nullptr, 0);
+const Packet Packet::DP5_PKT_REQUEST_SPECTRUM_AND_STATUS   = Packet( DP5_P1_SPECTRUM_REQUEST    , DP5_P2_SPECTRUM_REQUEST_SPECTRUM_STATUS   , nullptr, 0);
 
-const Packet Packet::PX5_REQUEST_KEEP_ALIVE_NO_SHARING = Packet(0xF0,0x21, nullptr, 0);
+const Packet Packet::DP5_PKT_REQUEST_LIST_DATA             = Packet( DP5_P1_DATA_REQUEST        , DP5_P2_DATA_REQUEST_LISTDATA              , nullptr, 0);
 
+const Packet Packet::DP5_PKT_REQUEST_CLEAR_SPECTRUM        = Packet( DP5_P1_COMMAND_REQUEST     , DP5_P2_COMMAND_REQUEST_CLEAR_SPECTRUM     , nullptr, 0);
+const Packet Packet::DP5_PKT_REQUEST_ENABLE                = Packet( DP5_P1_COMMAND_REQUEST     , DP5_P2_COMMAND_REQUEST_ENABLE             , nullptr, 0);
+const Packet Packet::DP5_PKT_REQUEST_DISABLE               = Packet( DP5_P1_COMMAND_REQUEST     , DP5_P2_COMMAND_REQUEST_DISABLE            , nullptr, 0);
+const Packet Packet::DP5_PKT_REQUEST_KEEP_ALIVE_NO_SHARING = Packet( DP5_P1_COMMAND_REQUEST     , DP5_P2_COMMAND_REQUEST_KEEP_ALIVE_NO_SHARE, nullptr, 0);
+
+const Packet Packet::DP5_PKT_REQUEST_RESTART_SEQ_BUFFERING = Packet( DP5_P1_COMMAND_REQUEST     , DP5_P2_COMMAND_REQUEST_RESTART_BUFFER     , nullptr, 0);
+const Packet Packet::DP5_PKT_REQUEST_CANCEL_SEQ_BUFFERING  = Packet( DP5_P1_COMMAND_REQUEST     , DP5_P2_COMMAND_REQUEST_CANCEL_BUFFER      , nullptr, 0);
+const Packet Packet::DP5_PKT_REQUEST_CLEAR_LIST_TIMER      = Packet( DP5_P1_COMMAND_REQUEST     , DP5_P2_COMMAND_REQUEST_CLEAR_TIMER        , nullptr, 0);
 
 const Packet Packet::gernerateSetConfigurationRequest(std::string text_configuration){
     word16 len = text_configuration.size();
     byte data[len];
     charToByte(text_configuration.c_str(), data, len);
-    return Packet( PX5_REQUEST_CONFIG, CONFIG_PACKET_TYPES::PX5_REQUEST_SET_CONFIG, data, len );
+    return Packet( DP5_P1_TEXTCONFIG_REQUEST, DP5_P2_TEXTCONFIG_REQUEST_SET, data, len );
 }
 const Packet Packet::gernerateGetConfigurationRequest(std::string text_configuration){
     word16 len = text_configuration.size();
     byte data[len];
     charToByte(text_configuration.c_str(), data, len);
-    return Packet( PX5_REQUEST_CONFIG, CONFIG_PACKET_TYPES::PX5_REQUEST_GET_CONFIG, data, len );
+    return Packet( DP5_P1_TEXTCONFIG_REQUEST, DP5_P2_TEXTCONFIG_REQUEST_GET, data, len );
+}
+
+const Packet Packet::generateBufferRequest(uint16_t buffer_index){
+    byte data[2];
+    data[0] = buffer_index>>8;
+    data[1] = buffer_index;
+    return Packet( DP5_P1_SPECTRUM_REQUEST, DP5_P2_SPECTRUM_REQUEST_BUFFER, data, 2 );
+}
+const Packet Packet::generateBufferAndClearRequest(uint16_t buffer_index){
+    byte data[2];
+    data[0] = buffer_index>>8;
+    data[1] = buffer_index;
+    return Packet( DP5_P1_SPECTRUM_REQUEST, DP5_P2_SPECTRUM_REQUEST_BUFFER_CLEAR, data, 2 );
+}
+const Packet Packet::generateGetBufferRequest(uint16_t buffer_index){
+    byte data[2];
+    data[0] = buffer_index>>8;
+    data[1] = buffer_index;
+    return Packet( DP5_P1_SPECTRUM_REQUEST, DP5_P2_SPECTRUM_REQUEST_GET_BUFFER, data, 2 );
 }
 
 
