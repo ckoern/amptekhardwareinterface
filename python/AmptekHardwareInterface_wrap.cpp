@@ -14734,6 +14734,61 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_AmptekHardwareInterface_EnableListMode(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  AmptekHardwareInterface *arg1 = (AmptekHardwareInterface *) 0 ;
+  std::string arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  bool result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:AmptekHardwareInterface_EnableListMode",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_AmptekHardwareInterface, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "AmptekHardwareInterface_EnableListMode" "', argument " "1"" of type '" "AmptekHardwareInterface *""'"); 
+  }
+  arg1 = reinterpret_cast< AmptekHardwareInterface * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    int res = SWIG_AsPtr_std_string(obj1, &ptr);
+    if (!SWIG_IsOK(res) || !ptr) {
+      SWIG_exception_fail(SWIG_ArgError((ptr ? res : SWIG_TypeError)), "in method '" "AmptekHardwareInterface_EnableListMode" "', argument " "2"" of type '" "std::string""'"); 
+    }
+    arg2 = *ptr;
+    if (SWIG_IsNewObj(res)) delete ptr;
+  }
+  result = (bool)(arg1)->EnableListMode(arg2);
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_AmptekHardwareInterface_DisableListMode(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  AmptekHardwareInterface *arg1 = (AmptekHardwareInterface *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  bool result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:AmptekHardwareInterface_DisableListMode",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_AmptekHardwareInterface, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "AmptekHardwareInterface_DisableListMode" "', argument " "1"" of type '" "AmptekHardwareInterface *""'"); 
+  }
+  arg1 = reinterpret_cast< AmptekHardwareInterface * >(argp1);
+  result = (bool)(arg1)->DisableListMode();
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_AmptekHardwareInterface_FastCount__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   AmptekHardwareInterface *arg1 = (AmptekHardwareInterface *) 0 ;
@@ -17253,6 +17308,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"AmptekHardwareInterface_SetPresetCounts", _wrap_AmptekHardwareInterface_SetPresetCounts, METH_VARARGS, NULL},
 	 { (char *)"AmptekHardwareInterface_SetTextConfiguration", _wrap_AmptekHardwareInterface_SetTextConfiguration, METH_VARARGS, NULL},
 	 { (char *)"AmptekHardwareInterface_UpdateStatus", _wrap_AmptekHardwareInterface_UpdateStatus, METH_VARARGS, NULL},
+	 { (char *)"AmptekHardwareInterface_EnableListMode", _wrap_AmptekHardwareInterface_EnableListMode, METH_VARARGS, NULL},
+	 { (char *)"AmptekHardwareInterface_DisableListMode", _wrap_AmptekHardwareInterface_DisableListMode, METH_VARARGS, NULL},
 	 { (char *)"AmptekHardwareInterface_FastCount", _wrap_AmptekHardwareInterface_FastCount, METH_VARARGS, NULL},
 	 { (char *)"AmptekHardwareInterface_SlowCount", _wrap_AmptekHardwareInterface_SlowCount, METH_VARARGS, NULL},
 	 { (char *)"AmptekHardwareInterface_DeadTime", _wrap_AmptekHardwareInterface_DeadTime, METH_VARARGS, NULL},

@@ -335,6 +335,52 @@ if (connection_handler != nullptr){
 
 
 
+bool AmptekHardwareInterface::EnableListMode(std::string targetfile){
+
+    streamfile.open( targetfile, ios::binary );
+    //f.write( static_cast <char*> ( &(pts.count) ), sizeof( unsigned ) );
+    listmode_flag = true;
+    list_reader_thread = new std::thread([&](){
+        while(listmode_flag){
+            try{
+                 Packet listResponse = connection_handler->sendAndReceive( Packet::DP5_PKT_REQUEST_LIST_DATA );
+                //std::cout << spectrumResponse.size() << std::endl;
+                if (listResponse.at(PID1) != DP5_P1_DATA_RESPONSE )
+                {
+                    throw AmptekException("Response Packet is not of type DATA_RESPONSE: " + listResponse.toString());
+                }
+                if( listResponse.at(PID2) != DP5_P2_DATA_RESPONSE_LISTDATA && listResponse.at(PID2) != DP5_P2_DATA_RESPONSE_LISTDATA_FULL ){
+                    throw AmptekException("Response Packet is not of subtype LISTDATA: " + listResponse.toString());
+                }
+                //write the packet without the sync and checksum to file : [PID1,PID2,LEN_MSB;LEN_LSB,DATA_0,....,DATA_N]
+                streamfile.write( reinterpret_cast<char*>( &listResponse[PID1] ), listResponse.dataLength + 4 );
+
+            }
+            catch(AmptekException& e){
+                std::cerr << e.what() << std::endl;
+            }
+            std::this_thread::sleep_for(std::chrono::microseconds(100));
+        }
+    });
+    return true;
+}
+
+bool AmptekHardwareInterface::DisableListMode(){
+    listmode_flag = false;
+    list_reader_thread->join();
+    streamfile.close();
+    delete list_reader_thread;
+}
+
+
+
+
+
+
+
+
+
+
 
 
 

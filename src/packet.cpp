@@ -20,6 +20,9 @@ const Packet Packet::DP5_PKT_REQUEST_RESTART_SEQ_BUFFERING = Packet( DP5_P1_COMM
 const Packet Packet::DP5_PKT_REQUEST_CANCEL_SEQ_BUFFERING  = Packet( DP5_P1_COMMAND_REQUEST     , DP5_P2_COMMAND_REQUEST_CANCEL_BUFFER      , nullptr, 0);
 const Packet Packet::DP5_PKT_REQUEST_CLEAR_LIST_TIMER      = Packet( DP5_P1_COMMAND_REQUEST     , DP5_P2_COMMAND_REQUEST_CLEAR_TIMER        , nullptr, 0);
 
+
+const Packet Packet::DP5_PKT_REQUEST_STOP_STREAM_COMMTEST  = Packet( DP5_P1_COMMTEST_REQUEST    , DP5_P2_COMMTEST_REQUEST_STREAM            , nullptr, 0 );
+
 const Packet Packet::gernerateSetConfigurationRequest(std::string text_configuration){
     word16 len = text_configuration.size();
     byte data[len];
@@ -50,6 +53,21 @@ const Packet Packet::generateGetBufferRequest(uint16_t buffer_index){
     data[0] = buffer_index>>8;
     data[1] = buffer_index;
     return Packet( DP5_P1_SPECTRUM_REQUEST, DP5_P2_SPECTRUM_REQUEST_GET_BUFFER, data, 2 );
+}
+const Packet Packet::generateCommtestStreamingRequest(uint16_t min_channel,uint16_t max_channel, 
+                                                          uint16_t increment, uint16_t period)
+{
+    byte data[8];
+    data[0] = min_channel >> 8;
+    data[1] = min_channel;
+    data[2] = max_channel >> 8;
+    data[3] = max_channel;
+    data[4] = increment >> 8;
+    data[5] = increment;
+    data[6] = period >> 8;
+    data[7] = period;
+    return Packet( DP5_P1_COMMTEST_REQUEST    , DP5_P2_COMMTEST_REQUEST_STREAM , data, 8 );
+
 }
 
 

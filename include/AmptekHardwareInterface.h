@@ -2,6 +2,8 @@
 #define AmptekHardwareInterface_h
 #include "types.h"
 #include <chrono>
+#include <thread>
+#include <fstream>
 
 #include "AmptekConnectionHandler.h"
 
@@ -40,6 +42,9 @@ public:
     bool SetPresetCounts(int c);
     bool SetTextConfiguration(std::vector<std::string> commands);
     bool UpdateStatus() {return updateStatus(-1);};
+
+    bool EnableListMode(std::string targetfile);
+    bool DisableListMode();
 
     int FastCount(double max_age_ms = 100);
     int SlowCount(double max_age_ms = 100);
@@ -83,9 +88,14 @@ private:
     std::chrono::time_point<std::chrono::system_clock> last_status_update_time;
     std::chrono::time_point<std::chrono::system_clock> last_spectrum_update_time;
 
+    bool listmode_flag;
+
     AmptekState current_state = NOT_CONNECTED;
 
     AmptekConnectionHandler* connection_handler = nullptr;
+
+    std::thread* list_reader_thread = nullptr;
+    std::ofstream streamfile;
 };
 
 

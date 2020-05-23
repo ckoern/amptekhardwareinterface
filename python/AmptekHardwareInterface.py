@@ -658,6 +658,12 @@ class AmptekHardwareInterface(object):
     def UpdateStatus(self):
         return _AmptekHardwareInterface.AmptekHardwareInterface_UpdateStatus(self)
 
+    def EnableListMode(self, targetfile):
+        return _AmptekHardwareInterface.AmptekHardwareInterface_EnableListMode(self, targetfile)
+
+    def DisableListMode(self):
+        return _AmptekHardwareInterface.AmptekHardwareInterface_DisableListMode(self)
+
     def FastCount(self, max_age_ms=100):
         return _AmptekHardwareInterface.AmptekHardwareInterface_FastCount(self, max_age_ms)
 

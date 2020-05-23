@@ -31,7 +31,7 @@ enum PID1_TYPE{
     DP5_P1_SCA_REQUEST          = 0x04,
     DP5_P1_TEXTCONFIG_REQUEST   = 0x20,
     DP5_P1_COMMAND_REQUEST      = 0xF0,
-    DP5_P1_COMTEST_REQUEST      = 0xF1,
+    DP5_P1_COMMTEST_REQUEST     = 0xF1,
 
     DP5_P1_STATUS_RESPONSE      = 0x80,
     DP5_P1_SPECTRUM_RESPONSE    = 0x81,
@@ -70,7 +70,11 @@ enum PID2_SUBTYPE_COMMAND_REQUEST{
     DP5_P2_COMMAND_REQUEST_CANCEL_BUFFER          = 0x1F,
     DP5_P2_COMMAND_REQUEST_KEEP_ALIVE_NO_SHARE    = 0x21,
 };
-
+enum PID2_SUBTYPE_COMMTEST_REQUEST{
+    DP5_P2_COMMTEST_REQUEST_ACK                   = 0xF1,
+    DP5_P2_COMMTEST_REQUEST_STREAM                = 0xF2,
+    DP5_P2_COMMTEST_REQUEST_ECHO                  = 0xF3,
+};
 enum PID2_SUBTYPE_STATUS_RESPONSE{
     DP5_P2_STATUS_RESPONSE_INFO = 0x01,
 };
@@ -173,6 +177,7 @@ public:
     static const Packet DP5_PKT_REQUEST_CANCEL_SEQ_BUFFERING;
     static const Packet DP5_PKT_REQUEST_LIST_DATA;
     static const Packet DP5_PKT_REQUEST_CLEAR_LIST_TIMER;
+    static const Packet DP5_PKT_REQUEST_STOP_STREAM_COMMTEST;
 
     static const Packet gernerateSetConfigurationRequest(std::string text_configuration);
     static const Packet gernerateGetConfigurationRequest(std::string text_configuration);
@@ -180,6 +185,9 @@ public:
     static const Packet generateBufferRequest(uint16_t buffer_index);
     static const Packet generateBufferAndClearRequest(uint16_t buffer_index);
     static const Packet generateGetBufferRequest(uint16_t buffer_index);
+
+    static const Packet generateCommtestStreamingRequest(uint16_t min_channel,uint16_t max_channel, 
+                                                          uint16_t increment, uint16_t period);
 
 };
 
