@@ -249,7 +249,7 @@ bool AmptekHardwareInterface::updateSpectrum(double max_age_ms){
         switch( spectrumResponse.at(PID2) ){
             case DP5_P2_SPECTRUM_RESPONSE_SPECTRUM256:
                 with_status = false;        // not break! use the respose with status setting the length
-            case DP5_P2_SPECTRUM_SPECTRUM256_STATUS:
+            case DP5_P2_SPECTRUM_RESPONSE_SPECTRUM256_STATUS:
                 spectrum_length=256;
                 break;
 
@@ -340,6 +340,7 @@ bool AmptekHardwareInterface::EnableListMode(std::string targetfile){
     streamfile.open( targetfile, ios::binary );
     //f.write( static_cast <char*> ( &(pts.count) ), sizeof( unsigned ) );
     listmode_flag = true;
+    ResetListModeTimer();
     list_reader_thread = new std::thread([&](){
         while(listmode_flag){
             try{
@@ -372,10 +373,44 @@ bool AmptekHardwareInterface::DisableListMode(){
     delete list_reader_thread;
 }
 
+bool AmptekHardwareInterface::ResetListModeTimer(){
+    try{
+        expectAcknowledge(connection_handler->sendAndReceive( Packet::DP5_PKT_REQUEST_CLEAR_LIST_TIMER) );
+    }
+    catch(AmptekException& e){
+    
+            std::cerr<< "Failed clearing list-mode timer: " << e.what() << std::endl;
+            return false;
+    }
+}
 
 
 
-
+bool AmptekHardwareInterface::StartCommtestStreaming(uint16_t min_channel,uint16_t max_channel, 
+                                    uint16_t increment, uint16_t rate)
+{
+    // convert from rate (cts/sec) to number of fpga clock cycles between two events
+    uint32_t period = std::max(8., 1./( rate * FpgaClock()*1e-9 ) );
+    try{
+        Packet commtest_packet = Packet::generateCommtestStreamingRequest(min_channel, max_channel, increment, period);
+        expectAcknowledge(connection_handler->sendAndReceive( Packet::DP5_PKT_REQUEST_STOP_STREAM_COMMTEST) );
+    }
+    catch(AmptekException& e){
+    
+            std::cerr<< "Failed stopping comm test: " << e.what() << std::endl;
+            return false;
+    }
+}
+bool AmptekHardwareInterface::StopCommtestStreaming(){
+    try{
+        expectAcknowledge(connection_handler->sendAndReceive( Packet::DP5_PKT_REQUEST_STOP_STREAM_COMMTEST) );
+    }
+    catch(AmptekException& e){
+    
+            std::cerr<< "Failed stopping comm test: " << e.what() << std::endl;
+            return false;
+    }
+}
 
 
 

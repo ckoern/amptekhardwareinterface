@@ -44,14 +44,19 @@ public:
     bool UpdateStatus() {return updateStatus(-1);};
 
     bool EnableListMode(std::string targetfile);
+    bool ResetListModeTimer();
     bool DisableListMode();
+
+    bool StartCommtestStreaming(uint16_t min_channel,uint16_t max_channel, 
+                                    uint16_t increment, uint16_t rate);
+    bool StopCommtestStreaming();
 
     int FastCount(double max_age_ms = 100);
     int SlowCount(double max_age_ms = 100);
     double DeadTime(double max_age_ms = 100);
     double AccTime(double max_age_ms = 100);
     double RealTime(double max_age_ms = 100);
-    int FirmwareMajor(double max_age_ms = 1000000);
+    int FirmwareMajor(double max_age_ms  = 1000000);
     int FirmwareMinor(double max_age_ms = 1000000);
     int FirmwareBuild(double max_age_ms = 1000000);
     int FpgaMajor(double max_age_ms = 1000000);

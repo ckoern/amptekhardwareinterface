@@ -49,7 +49,7 @@ Packet AmptekSimulatorConnectionHandler::sendAndReceive( const Packet& request){
         p.setPid1( DP5_P1_SPECTRUM_RESPONSE );
         switch (speclen){
             case 256:
-                p.setPid2( DP5_P2_SPECTRUM_SPECTRUM256_STATUS );
+                p.setPid2( DP5_P2_SPECTRUM_RESPONSE_SPECTRUM256_STATUS );
                 break;
             case 512:
                 p.setPid2( DP5_P2_SPECTRUM_RESPONSE_SPECTRUM512_STATUS );

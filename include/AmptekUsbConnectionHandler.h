@@ -3,7 +3,7 @@
 
 #include "AmptekConnectionHandler.h"
 #include "libusb-1.0/libusb.h"
-
+#include <mutex>
 
 #define MAX_USB_OUT_PACKET_SIZE 520
 #define MAX_USB_IN_PACKET_SIZE 32768    //defined by the amptek standard
@@ -29,6 +29,7 @@ private:
     void CloseUsbDevice(libusb_device_handle * devh);
 
     byte* input_buffer;
+    std::mutex comm_mutex;
 };
 
 #endif

@@ -5582,6 +5582,22 @@ SWIGINTERN std::vector< unsigned int >::iterator std_vector_Sl_unsigned_SS_int_S
 SWIGINTERN std::vector< unsigned int >::iterator std_vector_Sl_unsigned_SS_int_Sg__erase__SWIG_1(std::vector< unsigned int > *self,std::vector< unsigned int >::iterator first,std::vector< unsigned int >::iterator last){ return self->erase(first, last); }
 SWIGINTERN std::vector< unsigned int >::iterator std_vector_Sl_unsigned_SS_int_Sg__insert__SWIG_0(std::vector< unsigned int > *self,std::vector< unsigned int >::iterator pos,std::vector< unsigned int >::value_type const &x){ return self->insert(pos, x); }
 SWIGINTERN void std_vector_Sl_unsigned_SS_int_Sg__insert__SWIG_1(std::vector< unsigned int > *self,std::vector< unsigned int >::iterator pos,std::vector< unsigned int >::size_type n,std::vector< unsigned int >::value_type const &x){ self->insert(pos, n, x); }
+
+SWIGINTERN int
+SWIG_AsVal_unsigned_SS_short (PyObject * obj, unsigned short *val)
+{
+  unsigned long v;
+  int res = SWIG_AsVal_unsigned_SS_long (obj, &v);
+  if (SWIG_IsOK(res)) {
+    if ((v > USHRT_MAX)) {
+      return SWIG_OverflowError;
+    } else {
+      if (val) *val = static_cast< unsigned short >(v);
+    }
+  }  
+  return res;
+}
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -14767,6 +14783,28 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_AmptekHardwareInterface_ResetListModeTimer(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  AmptekHardwareInterface *arg1 = (AmptekHardwareInterface *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  bool result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:AmptekHardwareInterface_ResetListModeTimer",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_AmptekHardwareInterface, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "AmptekHardwareInterface_ResetListModeTimer" "', argument " "1"" of type '" "AmptekHardwareInterface *""'"); 
+  }
+  arg1 = reinterpret_cast< AmptekHardwareInterface * >(argp1);
+  result = (bool)(arg1)->ResetListModeTimer();
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_AmptekHardwareInterface_DisableListMode(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   AmptekHardwareInterface *arg1 = (AmptekHardwareInterface *) 0 ;
@@ -14782,6 +14820,86 @@ SWIGINTERN PyObject *_wrap_AmptekHardwareInterface_DisableListMode(PyObject *SWI
   }
   arg1 = reinterpret_cast< AmptekHardwareInterface * >(argp1);
   result = (bool)(arg1)->DisableListMode();
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_AmptekHardwareInterface_StartCommtestStreaming(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  AmptekHardwareInterface *arg1 = (AmptekHardwareInterface *) 0 ;
+  uint16_t arg2 ;
+  uint16_t arg3 ;
+  uint16_t arg4 ;
+  uint16_t arg5 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  unsigned short val2 ;
+  int ecode2 = 0 ;
+  unsigned short val3 ;
+  int ecode3 = 0 ;
+  unsigned short val4 ;
+  int ecode4 = 0 ;
+  unsigned short val5 ;
+  int ecode5 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  bool result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOO:AmptekHardwareInterface_StartCommtestStreaming",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_AmptekHardwareInterface, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "AmptekHardwareInterface_StartCommtestStreaming" "', argument " "1"" of type '" "AmptekHardwareInterface *""'"); 
+  }
+  arg1 = reinterpret_cast< AmptekHardwareInterface * >(argp1);
+  ecode2 = SWIG_AsVal_unsigned_SS_short(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "AmptekHardwareInterface_StartCommtestStreaming" "', argument " "2"" of type '" "uint16_t""'");
+  } 
+  arg2 = static_cast< uint16_t >(val2);
+  ecode3 = SWIG_AsVal_unsigned_SS_short(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "AmptekHardwareInterface_StartCommtestStreaming" "', argument " "3"" of type '" "uint16_t""'");
+  } 
+  arg3 = static_cast< uint16_t >(val3);
+  ecode4 = SWIG_AsVal_unsigned_SS_short(obj3, &val4);
+  if (!SWIG_IsOK(ecode4)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "AmptekHardwareInterface_StartCommtestStreaming" "', argument " "4"" of type '" "uint16_t""'");
+  } 
+  arg4 = static_cast< uint16_t >(val4);
+  ecode5 = SWIG_AsVal_unsigned_SS_short(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "AmptekHardwareInterface_StartCommtestStreaming" "', argument " "5"" of type '" "uint16_t""'");
+  } 
+  arg5 = static_cast< uint16_t >(val5);
+  result = (bool)(arg1)->StartCommtestStreaming(arg2,arg3,arg4,arg5);
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_AmptekHardwareInterface_StopCommtestStreaming(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  AmptekHardwareInterface *arg1 = (AmptekHardwareInterface *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  bool result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:AmptekHardwareInterface_StopCommtestStreaming",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_AmptekHardwareInterface, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "AmptekHardwareInterface_StopCommtestStreaming" "', argument " "1"" of type '" "AmptekHardwareInterface *""'"); 
+  }
+  arg1 = reinterpret_cast< AmptekHardwareInterface * >(argp1);
+  result = (bool)(arg1)->StopCommtestStreaming();
   resultobj = SWIG_From_bool(static_cast< bool >(result));
   return resultobj;
 fail:
@@ -17309,7 +17427,10 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"AmptekHardwareInterface_SetTextConfiguration", _wrap_AmptekHardwareInterface_SetTextConfiguration, METH_VARARGS, NULL},
 	 { (char *)"AmptekHardwareInterface_UpdateStatus", _wrap_AmptekHardwareInterface_UpdateStatus, METH_VARARGS, NULL},
 	 { (char *)"AmptekHardwareInterface_EnableListMode", _wrap_AmptekHardwareInterface_EnableListMode, METH_VARARGS, NULL},
+	 { (char *)"AmptekHardwareInterface_ResetListModeTimer", _wrap_AmptekHardwareInterface_ResetListModeTimer, METH_VARARGS, NULL},
 	 { (char *)"AmptekHardwareInterface_DisableListMode", _wrap_AmptekHardwareInterface_DisableListMode, METH_VARARGS, NULL},
+	 { (char *)"AmptekHardwareInterface_StartCommtestStreaming", _wrap_AmptekHardwareInterface_StartCommtestStreaming, METH_VARARGS, NULL},
+	 { (char *)"AmptekHardwareInterface_StopCommtestStreaming", _wrap_AmptekHardwareInterface_StopCommtestStreaming, METH_VARARGS, NULL},
 	 { (char *)"AmptekHardwareInterface_FastCount", _wrap_AmptekHardwareInterface_FastCount, METH_VARARGS, NULL},
 	 { (char *)"AmptekHardwareInterface_SlowCount", _wrap_AmptekHardwareInterface_SlowCount, METH_VARARGS, NULL},
 	 { (char *)"AmptekHardwareInterface_DeadTime", _wrap_AmptekHardwareInterface_DeadTime, METH_VARARGS, NULL},

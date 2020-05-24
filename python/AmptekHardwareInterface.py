@@ -661,8 +661,17 @@ class AmptekHardwareInterface(object):
     def EnableListMode(self, targetfile):
         return _AmptekHardwareInterface.AmptekHardwareInterface_EnableListMode(self, targetfile)
 
+    def ResetListModeTimer(self):
+        return _AmptekHardwareInterface.AmptekHardwareInterface_ResetListModeTimer(self)
+
     def DisableListMode(self):
         return _AmptekHardwareInterface.AmptekHardwareInterface_DisableListMode(self)
+
+    def StartCommtestStreaming(self, min_channel, max_channel, increment, rate):
+        return _AmptekHardwareInterface.AmptekHardwareInterface_StartCommtestStreaming(self, min_channel, max_channel, increment, rate)
+
+    def StopCommtestStreaming(self):
+        return _AmptekHardwareInterface.AmptekHardwareInterface_StopCommtestStreaming(self)
 
     def FastCount(self, max_age_ms=100):
         return _AmptekHardwareInterface.AmptekHardwareInterface_FastCount(self, max_age_ms)

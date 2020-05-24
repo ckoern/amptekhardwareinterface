@@ -97,6 +97,7 @@ Packet AmptekUsbConnectionHandler::sendAndReceive( const Packet& request){
     if ( request.size() > MAX_USB_OUT_PACKET_SIZE ){
         throw AmptekException( "Cannot send Packets larger than "+ std::to_string(MAX_USB_OUT_PACKET_SIZE) + " bytes" );
     }
+    std::lock_guard<std::mutex> comm_lock(comm_mutex);
     int bytes_transferred;
     int result = libusb_bulk_transfer(usb_handle, PX5_USB_BULK_OUT_ENDPOINT, (byte*) &(request.at(0)), request.size(), &bytes_transferred, 1000);
     std::string error_msg;
