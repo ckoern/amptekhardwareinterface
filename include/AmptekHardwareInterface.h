@@ -47,8 +47,12 @@ public:
     bool ResetListModeTimer();
     bool DisableListMode();
 
+    bool startBuffering();
+    bool stopBuffering();
+    std::vector<unsigned int> GetBuffered(size_t id);
+
     bool StartCommtestStreaming(uint16_t min_channel,uint16_t max_channel, 
-                                    uint16_t increment, uint16_t rate);
+                                    uint16_t increment, uint32_t rate);
     bool StopCommtestStreaming();
 
     int FastCount(double max_age_ms = 100);

@@ -42,6 +42,7 @@ enum PID1_TYPE{
 };
 
 
+
 // Packet ID second byte (one enum per group)
 
 enum PID2_SUBTYPE_STATUS_REQUEST{

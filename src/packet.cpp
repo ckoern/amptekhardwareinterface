@@ -59,13 +59,13 @@ const Packet Packet::generateCommtestStreamingRequest(uint16_t min_channel,uint1
 {
     byte data[8];
     data[0] = min_channel >> 8;
-    data[1] = min_channel;
+    data[1] = min_channel & 0xFF;
     data[2] = max_channel >> 8;
-    data[3] = max_channel;
+    data[3] = max_channel & 0xFF;
     data[4] = increment >> 8;
-    data[5] = increment;
+    data[5] = increment & 0xFF;
     data[6] = period >> 8;
-    data[7] = period;
+    data[7] = period & 0xFF;
     return Packet( DP5_P1_COMMTEST_REQUEST    , DP5_P2_COMMTEST_REQUEST_STREAM , data, 8 );
 
 }

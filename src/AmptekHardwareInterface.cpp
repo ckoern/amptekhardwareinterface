@@ -20,6 +20,7 @@ AmptekHardwareInterface::~AmptekHardwareInterface(){
 }
 
 
+
 void AmptekHardwareInterface::connectUDP(std::string hostname, int port, double timeout){
 
     if (connection_handler != nullptr){
@@ -354,23 +355,135 @@ bool AmptekHardwareInterface::EnableListMode(std::string targetfile){
                     throw AmptekException("Response Packet is not of subtype LISTDATA: " + listResponse.toString());
                 }
                 //write the packet without the sync and checksum to file : [PID1,PID2,LEN_MSB;LEN_LSB,DATA_0,....,DATA_N]
-                streamfile.write( reinterpret_cast<char*>( &listResponse[PID1] ), listResponse.dataLength + 4 );
-
+                if (listResponse.dataLength > 0){
+                    streamfile.write( reinterpret_cast<char*>( &listResponse[PID1] ), listResponse.dataLength + 4 );
+                }
+                if (listResponse.dataLength < 1024){ // only sleep if not too many entries
+                    std::this_thread::sleep_for(std::chrono::microseconds(20));
+                }
             }
             catch(AmptekException& e){
                 std::cerr << e.what() << std::endl;
             }
-            std::this_thread::sleep_for(std::chrono::microseconds(100));
+            
         }
     });
     return true;
 }
 
+
+bool AmptekHardwareInterface::startBuffering(){
+    try{
+        expectAcknowledge(connection_handler->sendAndReceive( Packet::DP5_PKT_REQUEST_RESTART_SEQ_BUFFERING) );
+    }
+    catch(AmptekException& e){
+    
+            std::cerr<< "Failed clearing list-mode timer: " << e.what() << std::endl;
+            return false;
+    }
+}
+bool AmptekHardwareInterface::stopBuffering(){
+    try{
+        expectAcknowledge(connection_handler->sendAndReceive( Packet::DP5_PKT_REQUEST_CANCEL_SEQ_BUFFERING) );
+    }
+    catch(AmptekException& e){
+    
+            std::cerr<< "Failed clearing list-mode timer: " << e.what() << std::endl;
+            return false;
+    }
+}
+std::vector<unsigned int> AmptekHardwareInterface::GetBuffered(size_t id){
+    Packet spectrumResponse = connection_handler->sendAndReceive( Packet::generateGetBufferRequest(id) );
+    
+    //std::cout << spectrumResponse.size() << std::endl;
+    if (spectrumResponse.at(PID1) != DP5_P1_SPECTRUM_RESPONSE )
+    {
+            std::cerr<< "Response Packet is not of type Spectrum: " << spectrumResponse.toString() << std::endl;
+            return std::vector<unsigned int>();
+    }
+    bool with_status = true;
+    switch( spectrumResponse.at(PID2) ){
+        case DP5_P2_SPECTRUM_RESPONSE_SPECTRUM256:
+            with_status = false;        // not break! use the respose with status setting the length
+        case DP5_P2_SPECTRUM_RESPONSE_SPECTRUM256_STATUS:
+            spectrum_length=256;
+            break;
+
+        case DP5_P2_SPECTRUM_RESPONSE_SPECTRUM512:
+            with_status = false;        // not break! use the respose with status setting the length
+        case DP5_P2_SPECTRUM_RESPONSE_SPECTRUM512_STATUS:
+            spectrum_length=512;
+            break;
+
+        case DP5_P2_SPECTRUM_RESPONSE_SPECTRUM1024:
+            with_status = false;        // not break! use the respose with status setting the length
+        case DP5_P2_SPECTRUM_RESPONSE_SPECTRUM1024_STATUS:
+            spectrum_length=1024;
+            break;
+
+        case DP5_P2_SPECTRUM_RESPONSE_SPECTRUM2048:
+            with_status = false;        // not break! use the respose with status setting the length
+        case DP5_P2_SPECTRUM_RESPONSE_SPECTRUM2048_STATUS:
+            spectrum_length=2048;
+            break;
+
+        case DP5_P2_SPECTRUM_RESPONSE_SPECTRUM4096:
+            with_status = false;        // not break! use the respose with status setting the length
+        case DP5_P2_SPECTRUM_RESPONSE_SPECTRUM4096_STATUS:
+            spectrum_length=4096;
+            break;
+
+        
+        case DP5_P2_SPECTRUM_RESPONSE_SPECTRUM8192:
+            with_status = false;        // not break! use the respose with status setting the length
+        case DP5_P2_SPECTRUM_RESPONSE_SPECTRUM8192_STATUS:
+            spectrum_length=8192;
+            break;
+    }
+    
+    int spectrum_bytesize = 3*spectrum_length;
+    try{
+        for (int i = 0; i < spectrum_length; ++i){
+            last_spectrum[i] = mergeBytes( spectrumResponse.at(DATA + 3*i + 2),
+                                        spectrumResponse.at(DATA + 3*i + 1),
+                                        spectrumResponse.at(DATA + 3*i    )
+                                        );
+        }
+    }
+    catch(std::runtime_error& e){
+        throw AmptekException(std::string("Failed in AmptekHardwareInterface::updateSpectrum \
+                                during spectrum update: ") + e.what());
+    }
+
+    try{
+        last_spectrum_update_time = std::chrono::system_clock::now();
+        if (with_status){
+            memcpy(last_status,&(spectrumResponse.at(DATA + spectrum_bytesize)), spectrumResponse.dataLength - spectrum_bytesize );
+            last_status_update_time = last_spectrum_update_time;
+        }
+    }
+    catch(std::runtime_error& e){
+        throw AmptekException(std::string("Failed in AmptekHardwareInterface::updateSpectrum \
+                                during status update: ") + e.what());
+    }
+    
+    
+    std::vector<unsigned int> spec( last_spectrum, last_spectrum + spectrum_length );
+	return spec;
+}
+
+
+
 bool AmptekHardwareInterface::DisableListMode(){
     listmode_flag = false;
-    list_reader_thread->join();
-    streamfile.close();
-    delete list_reader_thread;
+    if (list_reader_thread != nullptr ){
+        list_reader_thread->join();
+        streamfile.close();
+        delete list_reader_thread;
+        list_reader_thread = nullptr;
+        return true;
+    }
+    return false;
 }
 
 bool AmptekHardwareInterface::ResetListModeTimer(){
@@ -387,19 +500,22 @@ bool AmptekHardwareInterface::ResetListModeTimer(){
 
 
 bool AmptekHardwareInterface::StartCommtestStreaming(uint16_t min_channel,uint16_t max_channel, 
-                                    uint16_t increment, uint16_t rate)
+                                    uint16_t increment, uint32_t rate)
 {
     // convert from rate (cts/sec) to number of fpga clock cycles between two events
-    uint32_t period = std::max(8., 1./( rate * FpgaClock()*1e-9 ) );
+    uint32_t period = std::max(8., FpgaClock()*1e6/rate );
+    std::cout << "Pulse Period: " << period << std::endl;
     try{
         Packet commtest_packet = Packet::generateCommtestStreamingRequest(min_channel, max_channel, increment, period);
-        expectAcknowledge(connection_handler->sendAndReceive( Packet::DP5_PKT_REQUEST_STOP_STREAM_COMMTEST) );
+        std::cout << commtest_packet.toString() << std::endl;
+        expectAcknowledge(connection_handler->sendAndReceive( commtest_packet) );
     }
     catch(AmptekException& e){
     
             std::cerr<< "Failed stopping comm test: " << e.what() << std::endl;
             return false;
     }
+    return true;
 }
 bool AmptekHardwareInterface::StopCommtestStreaming(){
     try{
@@ -410,6 +526,7 @@ bool AmptekHardwareInterface::StopCommtestStreaming(){
             std::cerr<< "Failed stopping comm test: " << e.what() << std::endl;
             return false;
     }
+    return true;
 }
 
 
