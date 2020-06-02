@@ -2,7 +2,7 @@
 
 import sys 
 import struct 
-
+import numpy as np 
 
 def read_records(f,datalength):
     records = []
@@ -113,12 +113,23 @@ t = [ r["full_ts"] for r in event_records if "full_ts" in r ]
 a = [ r["amplitude"] for r in event_records if "full_ts" in r ]
 ax2.plot(t,a)
 
+figWF, axesWF = plt.subplots(2,1,sharex=True)
+h2D, tedges, xedges = np.histogram2d( t,a,bins=(1000,1024), range=( (0,max(t)),(0,4096) ) )
+print(h2D.shape)
+axesWF[0].plot( h2D[-1] )
+axesWF[1].imshow(h2D, extent = (0,1024,tedges[0],tedges[-1]), aspect = "auto", origin = "lower" )
+
 fig3, ax3 = plt.subplots() 
 
 event_records = [r for r in records if r["type"] == "event"]
 t = [ r["full_ts"] for r in event_records if "full_ts" in r ]
 a = [ r["frame"] for r in event_records if "full_ts" in r ]
 ax3.plot(t,a)
+
+
+# for i in range(len(records)):
+#     if records[i]['type'] == 'frame':
+#         print( "{:03d}:{:06d}".format( records[i]["frame"],records[i]["ts_upper"] ) )
 plt.show()
 
 

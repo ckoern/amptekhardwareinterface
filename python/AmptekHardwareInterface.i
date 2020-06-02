@@ -14,6 +14,8 @@
 
 %include "stdint.i"
 %include "std_vector.i"
+%include "std_pair.i"
+
 %include exception.i       
 namespace std {
    %template(IntVector) vector<int>;
@@ -38,3 +40,5 @@ namespace std {
 }
 
 %include "include/AmptekHardwareInterface.h"
+%include "include/AmptekStatus.h"
+%include "include/AmptekSpectrum.h"

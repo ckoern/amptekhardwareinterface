@@ -20,7 +20,13 @@ AmptekHardwareInterface::~AmptekHardwareInterface(){
 }
 
 
-
+/**
+ * @brief Connect via UDP to the detector
+ * 
+ * @param hostname host of the detector, can be IP address
+ * @param port port on which the amptek is listening. Should be 10001
+ * @param timeout connection timeout in seconds
+ */
 void AmptekHardwareInterface::connectUDP(std::string hostname, int port, double timeout){
 
     if (connection_handler != nullptr){
@@ -32,6 +38,26 @@ void AmptekHardwareInterface::connectUDP(std::string hostname, int port, double 
     }
 }
 
+/**
+ * @brief Connect via USB to the detector
+ * 
+ * @param serialNb the serial number of the detector to connect with
+ */
+void AmptekHardwareInterface::connectUSB(int serialNb){
+if (connection_handler != nullptr){
+        throw AmptekException("Amptek is already connected");
+    }
+    else{
+        connection_handler = new AmptekUsbConnectionHandler(serialNb);
+        current_state = ON;
+    }
+}
+
+/**
+ * @brief Connect to a simulator interface
+ * This allows debugging of interface logic without an available hardware to connect to
+ * 
+ */
 void AmptekHardwareInterface::connectSimulator(){
 
     if (connection_handler != nullptr){
@@ -43,23 +69,43 @@ void AmptekHardwareInterface::connectSimulator(){
     }
 }
 
+
+/**
+ * @brief Checks if the stored last spectrum is younger than the given maximum age
+ * 
+ * @param max_age_ms maximum allowed age in milliseconds
+ * @return true if spectrum is young enough
+ * @return false if it is too old
+ */
 bool AmptekHardwareInterface::spectrumAgeOk( double max_age_ms ) const {
     if (max_age_ms < 0){
         return false;
     }
-    auto now = std::chrono::system_clock::now();
-    return std::chrono::duration_cast<std::chrono::milliseconds>(now - last_spectrum_update_time).count() < max_age_ms;
+    return last_spectrum.AgeMillis() < max_age_ms;
 }
 
+
+/**
+ * @brief  Checks if the stored last status is younger than the given maximum age
+ * 
+ * @param max_age_ms maximum allowed age in milliseconds
+ * @return true true if status is young enough
+ * @return false false if it is too old
+ */
 bool AmptekHardwareInterface::statusAgeOk( double max_age_ms ) const {
     if (max_age_ms < 0){
         return false;
     }
-    auto now = std::chrono::system_clock::now();
-    return std::chrono::duration_cast<std::chrono::milliseconds>(now - last_status_update_time).count() < max_age_ms;
+    return last_status.AgeMillis() < max_age_ms;
 }
 
 
+/**
+ * @brief Enables the acquisition on the detector
+ * 
+ * @return true on success
+ * @return false on failure
+ */
 bool AmptekHardwareInterface::Enable(){
     try{
         expectAcknowledge( connection_handler->sendAndReceive( Packet::DP5_PKT_REQUEST_ENABLE ) );
@@ -73,7 +119,12 @@ bool AmptekHardwareInterface::Enable(){
 }
 
 
-
+/**
+ * @brief Disable the acquisition on the detector
+ * 
+ * @return true on success
+ * @return false on failure
+ */
 bool AmptekHardwareInterface::Disable(){
     try{
         expectAcknowledge( connection_handler->sendAndReceive( Packet::DP5_PKT_REQUEST_DISABLE ) );
@@ -85,6 +136,13 @@ bool AmptekHardwareInterface::Disable(){
     }
     return true;
 }
+
+/**
+ * @brief Send a test packet to the detector
+ * 
+ * @return true on success
+ * @return false on failure
+ */
 bool AmptekHardwareInterface::Ping(){
     try{
         expectAcknowledge( connection_handler->sendAndReceive( Packet::DP5_PKT_REQUEST_KEEP_ALIVE_NO_SHARING ) );
@@ -97,6 +155,12 @@ bool AmptekHardwareInterface::Ping(){
     return true;
 }
 
+/**
+ * @brief Clear the current spectrum buffer on the detector
+ * 
+ * @return true on success
+ * @return false on failure
+ */
 bool AmptekHardwareInterface::ClearSpectrum(){
     try{
         expectAcknowledge( connection_handler->sendAndReceive( Packet::DP5_PKT_REQUEST_CLEAR_SPECTRUM ) );
@@ -109,6 +173,18 @@ bool AmptekHardwareInterface::ClearSpectrum(){
     return true;
 }
 
+
+/**
+ * @brief Set the accumulation time for a measurement. The detector will stop automatically when the duration is reached
+ * 
+ * @note The Accumulation timer is stopped while the detector is gated, in transfer mode, reset lockout
+ * or any other mode that temporarily blockes the MCA. Therefore, accumulation time is larger than the real measurement duration
+ * 
+ * @see SetPresetAccumulationTime, SetPresetRealTime, SetPresetCounts
+ * @param t accumulation time in seconds. Minimum is 0.1. If below zero, the accumulation time is not part of the stop condition during acquisition
+ * @return true on success
+ * @return false on failure
+ */
 bool AmptekHardwareInterface::SetPresetAccumulationTime(double t){
     std::stringstream cmd_stream;
     cmd_stream << "PRET=";
@@ -121,6 +197,15 @@ bool AmptekHardwareInterface::SetPresetAccumulationTime(double t){
     return SetTextConfiguration( {cmd_stream.str()} );
 }
 
+
+/**
+ * @brief Set the real time for a measurement. The detector will stop automatically when the duration is reached
+ * 
+ * @see SetPresetAccumulationTime, SetPresetRealTime, SetPresetCounts
+ * @param t real time in seconds. If below zero, the real time is not part of the stop condition during acquisition
+ * @return true on success
+ * @return false on failure
+ */
 bool AmptekHardwareInterface::SetPresetRealTime(double t){
     std::stringstream cmd_stream;
     cmd_stream << "PRER=";
@@ -133,6 +218,15 @@ bool AmptekHardwareInterface::SetPresetRealTime(double t){
     return SetTextConfiguration( {cmd_stream.str()} );
 }
 
+
+/**
+ * @brief Set the count limit for a measurement. The detector will stop automatically when the slow count is reached
+ * 
+ * @see SetPresetAccumulationTime, SetPresetRealTime, SetPresetCounts
+ * @param c maximum slow counts. If below zero, the slow count is not part of the stop condition during acquisition
+ * @return true on success
+ * @return false on failure
+ */
 bool AmptekHardwareInterface::SetPresetCounts(int c){
     std::stringstream cmd_stream;
     cmd_stream << "PREC=";
@@ -145,7 +239,13 @@ bool AmptekHardwareInterface::SetPresetCounts(int c){
     return SetTextConfiguration( {cmd_stream.str()} );
 }
 
-
+/**
+ * @brief Send text configuration parameters to the detector. See DP5 Programmers Guide for available commands
+ * 
+ * @param commands vector of strings in the format "CMD=VAL", each entry in the vector being one config
+ * @return true on success
+ * @return false on failure
+ */
 bool AmptekHardwareInterface::SetTextConfiguration(std::vector<std::string> commands){
     try{
 
@@ -180,6 +280,13 @@ bool AmptekHardwareInterface::SetTextConfiguration(std::vector<std::string> comm
     return true;
 }
 
+
+/**
+ * @brief Configuration read back from the detector
+ * 
+ * @param commands  each element being one configuration parameter CMD
+ * @return std::vector<std::string> vector of strings in the format "CMD=VAL"
+ */
 std::vector<std::string> AmptekHardwareInterface::GetTextConfiguration(std::vector<std::string> commands){
     
         stringstream cmdstream;
@@ -218,25 +325,35 @@ std::vector<std::string> AmptekHardwareInterface::GetTextConfiguration(std::vect
         return configs;
 }
 
-bool AmptekHardwareInterface::updateStatus(double max_age_ms){
+
+/**
+ * @brief Update the detector status if too old
+ * 
+ * @param max_age_ms maximum age of status in milliseconds. If too old, the status will be read from the detector
+ * @return AmptekStatus& reference to the current status object
+ */
+AmptekStatus& AmptekHardwareInterface::updateStatus(double max_age_ms){
     if ( !statusAgeOk(max_age_ms)){
         Packet statusResponse = connection_handler->sendAndReceive( Packet::DP5_PKT_REQUEST_STATUS );
-        //std::cout << statusResponse.size() << std::endl;
         if (statusResponse.at(PID1) != DP5_P1_STATUS_RESPONSE
           || statusResponse.at(PID2) != DP5_P2_STATUS_RESPONSE_INFO)
         {
-              std::cerr<< "Response Packet did not match expected PIDs: " << statusResponse.toString() << std::endl;
-              return false;
+              throw AmptekException("Response Packet did not match expected PIDs: " + statusResponse.toString() );
+              return last_status;
         }
-
-        //std::cout << "copy from status response" << std::endl;
-        memcpy(last_status,&(statusResponse.at(DATA)), statusResponse.dataLength );
-        //std::cout << "done" << std::endl;
-        last_status_update_time = std::chrono::system_clock::now();
+        last_status = AmptekStatus(&(statusResponse.at(DATA)));
     }
-    return true;
+    return last_status;
 }
 
+
+/**
+ * @brief Update the spectrum data if too old
+ * 
+ * @param max_age_ms maximum age of spectrum in milliseconds. If too old, the spectrum will be read from the detector
+ * @return true on success
+ * @return false on failure
+ */
 bool AmptekHardwareInterface::updateSpectrum(double max_age_ms){
     if ( !spectrumAgeOk(max_age_ms)){
         Packet spectrumResponse = connection_handler->sendAndReceive( Packet::DP5_PKT_REQUEST_SPECTRUM_AND_STATUS );
@@ -247,6 +364,7 @@ bool AmptekHardwareInterface::updateSpectrum(double max_age_ms){
               return false;
         }
         bool with_status = true;
+        int spectrum_length;
         switch( spectrumResponse.at(PID2) ){
             case DP5_P2_SPECTRUM_RESPONSE_SPECTRUM256:
                 with_status = false;        // not break! use the respose with status setting the length
@@ -284,16 +402,14 @@ bool AmptekHardwareInterface::updateSpectrum(double max_age_ms){
             case DP5_P2_SPECTRUM_RESPONSE_SPECTRUM8192_STATUS:
                 spectrum_length=8192;
                 break;
+            default:
+                throw AmptekException("Unknown PID2. Cannot read Spectrum Response");
         }
         
         int spectrum_bytesize = 3*spectrum_length;
         try{
-            for (int i = 0; i < spectrum_length; ++i){
-                last_spectrum[i] = mergeBytes( spectrumResponse.at(DATA + 3*i + 2),
-                                            spectrumResponse.at(DATA + 3*i + 1),
-                                            spectrumResponse.at(DATA + 3*i    )
-                                            );
-            }
+            last_spectrum = AmptekSpectrum( &(spectrumResponse.at(DATA) ), spectrum_length );
+
         }
         catch(std::runtime_error& e){
             throw AmptekException(std::string("Failed in AmptekHardwareInterface::updateSpectrum \
@@ -301,10 +417,8 @@ bool AmptekHardwareInterface::updateSpectrum(double max_age_ms){
         }
 
         try{
-            last_spectrum_update_time = std::chrono::system_clock::now();
             if (with_status){
-                memcpy(last_status,&(spectrumResponse.at(DATA + spectrum_bytesize)), spectrumResponse.dataLength - spectrum_bytesize );
-                last_status_update_time = last_spectrum_update_time;
+                last_status = AmptekStatus(&(spectrumResponse.at(DATA + spectrum_bytesize)));
             }
         }
         catch(std::runtime_error& e){
@@ -316,26 +430,22 @@ bool AmptekHardwareInterface::updateSpectrum(double max_age_ms){
     return true;
 }
 
-const byte* AmptekHardwareInterface::readSpectrum(double max_age_ms){
-    throw AmptekException("AmptekHardwareInterface::readSpectrum not implemented");
 
-}
-const byte* AmptekHardwareInterface::readSpectrumAndStatus(const byte* statusbuffer, double max_age_ms){
-    throw AmptekException("AmptekHardwareInterface::readSpectrumAndStatus not implemented");
-
-}
-void AmptekHardwareInterface::connectUSB(int serialNb){
-if (connection_handler != nullptr){
-        throw AmptekException("Amptek is already connected");
-    }
-    else{
-        connection_handler = new AmptekUsbConnectionHandler(serialNb);
-        current_state = ON;
-    }
-}
-
-
-
+/**
+ * @brief Enables the list mode and streams the records into the targetfile 
+ * 
+ * The targetfile will be filled with the packet content of list data response messages
+ * The sync and checksum bytes are stripped from the response, but PIDs and LEN bytes will be written as well.
+ * This allows extending the output with other packet types later on if needed, 
+ * as well as having a clean way to find FIFO overflow packets during analysis
+ * 
+ * This function will invoke a continous loop in a worker thread and will result in 
+ * high load on the USB interface and possibly CPU
+ * 
+ * @param targetfile the path of the file to stream the responses
+ * @return true on success
+ * @return false on failure
+ */
 bool AmptekHardwareInterface::EnableListMode(std::string targetfile){
 
     streamfile.open( targetfile, ios::binary );
@@ -372,108 +482,17 @@ bool AmptekHardwareInterface::EnableListMode(std::string targetfile){
 }
 
 
-bool AmptekHardwareInterface::startBuffering(){
-    try{
-        expectAcknowledge(connection_handler->sendAndReceive( Packet::DP5_PKT_REQUEST_RESTART_SEQ_BUFFERING) );
-    }
-    catch(AmptekException& e){
-    
-            std::cerr<< "Failed clearing list-mode timer: " << e.what() << std::endl;
-            return false;
-    }
-}
-bool AmptekHardwareInterface::stopBuffering(){
-    try{
-        expectAcknowledge(connection_handler->sendAndReceive( Packet::DP5_PKT_REQUEST_CANCEL_SEQ_BUFFERING) );
-    }
-    catch(AmptekException& e){
-    
-            std::cerr<< "Failed clearing list-mode timer: " << e.what() << std::endl;
-            return false;
-    }
-}
-std::vector<unsigned int> AmptekHardwareInterface::GetBuffered(size_t id){
-    Packet spectrumResponse = connection_handler->sendAndReceive( Packet::generateGetBufferRequest(id) );
-    
-    //std::cout << spectrumResponse.size() << std::endl;
-    if (spectrumResponse.at(PID1) != DP5_P1_SPECTRUM_RESPONSE )
-    {
-            std::cerr<< "Response Packet is not of type Spectrum: " << spectrumResponse.toString() << std::endl;
-            return std::vector<unsigned int>();
-    }
-    bool with_status = true;
-    switch( spectrumResponse.at(PID2) ){
-        case DP5_P2_SPECTRUM_RESPONSE_SPECTRUM256:
-            with_status = false;        // not break! use the respose with status setting the length
-        case DP5_P2_SPECTRUM_RESPONSE_SPECTRUM256_STATUS:
-            spectrum_length=256;
-            break;
-
-        case DP5_P2_SPECTRUM_RESPONSE_SPECTRUM512:
-            with_status = false;        // not break! use the respose with status setting the length
-        case DP5_P2_SPECTRUM_RESPONSE_SPECTRUM512_STATUS:
-            spectrum_length=512;
-            break;
-
-        case DP5_P2_SPECTRUM_RESPONSE_SPECTRUM1024:
-            with_status = false;        // not break! use the respose with status setting the length
-        case DP5_P2_SPECTRUM_RESPONSE_SPECTRUM1024_STATUS:
-            spectrum_length=1024;
-            break;
-
-        case DP5_P2_SPECTRUM_RESPONSE_SPECTRUM2048:
-            with_status = false;        // not break! use the respose with status setting the length
-        case DP5_P2_SPECTRUM_RESPONSE_SPECTRUM2048_STATUS:
-            spectrum_length=2048;
-            break;
-
-        case DP5_P2_SPECTRUM_RESPONSE_SPECTRUM4096:
-            with_status = false;        // not break! use the respose with status setting the length
-        case DP5_P2_SPECTRUM_RESPONSE_SPECTRUM4096_STATUS:
-            spectrum_length=4096;
-            break;
-
-        
-        case DP5_P2_SPECTRUM_RESPONSE_SPECTRUM8192:
-            with_status = false;        // not break! use the respose with status setting the length
-        case DP5_P2_SPECTRUM_RESPONSE_SPECTRUM8192_STATUS:
-            spectrum_length=8192;
-            break;
-    }
-    
-    int spectrum_bytesize = 3*spectrum_length;
-    try{
-        for (int i = 0; i < spectrum_length; ++i){
-            last_spectrum[i] = mergeBytes( spectrumResponse.at(DATA + 3*i + 2),
-                                        spectrumResponse.at(DATA + 3*i + 1),
-                                        spectrumResponse.at(DATA + 3*i    )
-                                        );
-        }
-    }
-    catch(std::runtime_error& e){
-        throw AmptekException(std::string("Failed in AmptekHardwareInterface::updateSpectrum \
-                                during spectrum update: ") + e.what());
-    }
-
-    try{
-        last_spectrum_update_time = std::chrono::system_clock::now();
-        if (with_status){
-            memcpy(last_status,&(spectrumResponse.at(DATA + spectrum_bytesize)), spectrumResponse.dataLength - spectrum_bytesize );
-            last_status_update_time = last_spectrum_update_time;
-        }
-    }
-    catch(std::runtime_error& e){
-        throw AmptekException(std::string("Failed in AmptekHardwareInterface::updateSpectrum \
-                                during status update: ") + e.what());
-    }
-    
-    
-    std::vector<unsigned int> spec( last_spectrum, last_spectrum + spectrum_length );
-	return spec;
-}
 
 
 
+/**
+ * @brief Disable the list mode streaming.
+ * 
+ * This will close the target file and delete the worker thread
+ * 
+ * @return true on success
+ * @return false on failure
+ */
 bool AmptekHardwareInterface::DisableListMode(){
     listmode_flag = false;
     if (list_reader_thread != nullptr ){
@@ -486,6 +505,16 @@ bool AmptekHardwareInterface::DisableListMode(){
     return false;
 }
 
+
+/**
+ * @brief Reset the frame and counter registers of the list mode timer
+ * 
+ * This will create a 0 time record in the data stream. 
+ * 
+ * @note The list mode timer is free running! This does not stop the timer, only resets it!
+ * @return true on success
+ * @return false on failure
+ */
 bool AmptekHardwareInterface::ResetListModeTimer(){
     try{
         expectAcknowledge(connection_handler->sendAndReceive( Packet::DP5_PKT_REQUEST_CLEAR_LIST_TIMER) );
@@ -495,15 +524,128 @@ bool AmptekHardwareInterface::ResetListModeTimer(){
             std::cerr<< "Failed clearing list-mode timer: " << e.what() << std::endl;
             return false;
     }
+    return true;
+}
+
+
+/**
+ * @brief Starts the hardware sequential buffering mode. 
+ * 
+ * THe sequential buffering mode ends, when all buffers are full or the buffering is canceled using stopBuffering.
+ * The hardware channel for buffer triggers is AUX IN 2
+ * 
+ * @note Hardware signals have to be provided to buffer a spectrum
+ * @note On PX5, the Connector input has to be configured to the right AUX input
+ * @note While in buffering mode, spectrum requests will be blocked with an ACK BUSY response packet
+ * 
+ * @return true on success
+ * @return false on failure
+ */
+bool AmptekHardwareInterface::startBuffering(){
+    try{
+        expectAcknowledge(connection_handler->sendAndReceive( Packet::DP5_PKT_REQUEST_RESTART_SEQ_BUFFERING) );
+    }
+    catch(AmptekException& e){
+    
+            std::cerr<< "Failed clearing list-mode timer: " << e.what() << std::endl;
+            return false;
+    }
+    return true;
+}
+
+
+/**
+ * @brief Cancels the hardware sequential buffering mode. 
+ * 
+ * @return true on success
+ * @return false on failure
+ */
+bool AmptekHardwareInterface::stopBuffering(){
+    try{
+        expectAcknowledge(connection_handler->sendAndReceive( Packet::DP5_PKT_REQUEST_CANCEL_SEQ_BUFFERING) );
+    }
+    catch(AmptekException& e){
+    
+            std::cerr<< "Failed clearing list-mode timer: " << e.what() << std::endl;
+            return false;
+    }
+    return true;
+}
+
+/**
+ * @brief Get Status and spectrum stored in an hardware buffer on the detector
+ * 
+ * @note This will always return data. It as to be assured externally, that the buffer is really filled
+ * @param id index of the buffer to read from
+ * @return std::pair<AmptekSpectrum, AmptekStatus> spectrum and status stored in the buffer slot
+ */
+std::pair<AmptekSpectrum, AmptekStatus>  AmptekHardwareInterface::GetBufferedSpectrum(size_t id){
+    Packet spectrumResponse = connection_handler->sendAndReceive( Packet::generateGetBufferRequest(id) );
+    
+    //std::cout << spectrumResponse.size() << std::endl;
+    if (spectrumResponse.at(PID1) != DP5_P1_SPECTRUM_RESPONSE )
+    {
+            throw AmptekException( "Response Packet is not of type Spectrum: " + spectrumResponse.toString() );
+            
+    }
+    int spectrum_length;
+    switch( spectrumResponse.at(PID2) ){
+        case DP5_P2_SPECTRUM_RESPONSE_SPECTRUM256_STATUS:
+            spectrum_length=256;
+            break;
+
+        case DP5_P2_SPECTRUM_RESPONSE_SPECTRUM512_STATUS:
+            spectrum_length=512;
+            break;
+
+        case DP5_P2_SPECTRUM_RESPONSE_SPECTRUM1024_STATUS:
+            spectrum_length=1024;
+            break;
+
+        case DP5_P2_SPECTRUM_RESPONSE_SPECTRUM2048_STATUS:
+            spectrum_length=2048;
+            break;
+
+        case DP5_P2_SPECTRUM_RESPONSE_SPECTRUM4096_STATUS:
+            spectrum_length=4096;
+            break;
+
+        
+        case DP5_P2_SPECTRUM_RESPONSE_SPECTRUM8192_STATUS:
+            spectrum_length=8192;
+            break;
+        
+        default:
+            throw AmptekException("Invalid PID2. No Status Attached: " + spectrumResponse.toString() );
+    }
+    
+    int spectrum_bytesize = 3*spectrum_length;
+    AmptekSpectrum buffered_spectrum( &(spectrumResponse.at(DATA) ), spectrum_length );
+    AmptekStatus buffered_status(&(spectrumResponse.at(DATA + spectrum_bytesize)));
+    return  std::pair<AmptekSpectrum, AmptekStatus>( buffered_spectrum, buffered_status );
 }
 
 
 
+/**
+ * @brief This starts the streaming commtest allowing debugging without a signal source 
+ * 
+ * This will generate predictable counts in the digital backend of the detector, which can be used for MCA, MCS and List Mode.
+ * It will generate signals starting at amplitude min_channel, incrementing by increment until max_channel is reached. Then the generated 
+ * amplitude falls down to min_channel again.
+ * 
+ * @param min_channel lower amplitude limit for generated events
+ * @param max_channel upper amplitude limit for generated events
+ * @param increment amplitude increment between two generated events
+ * @param rate event rate in evt/sec
+ * @return true on success 
+ * @return false on failure
+ */
 bool AmptekHardwareInterface::StartCommtestStreaming(uint16_t min_channel,uint16_t max_channel, 
                                     uint16_t increment, uint32_t rate)
 {
     // convert from rate (cts/sec) to number of fpga clock cycles between two events
-    uint32_t period = std::max(8., FpgaClock()*1e6/rate );
+    uint32_t period = std::max(8., last_status.FpgaClock()*1e6/rate );
     std::cout << "Pulse Period: " << period << std::endl;
     try{
         Packet commtest_packet = Packet::generateCommtestStreamingRequest(min_channel, max_channel, increment, period);
@@ -517,6 +659,14 @@ bool AmptekHardwareInterface::StartCommtestStreaming(uint16_t min_channel,uint16
     }
     return true;
 }
+
+
+/**
+ * @brief Disables the commtest streaming mode 
+ * 
+ * @return true on success
+ * @return false on failure
+ */
 bool AmptekHardwareInterface::StopCommtestStreaming(){
     try{
         expectAcknowledge(connection_handler->sendAndReceive( Packet::DP5_PKT_REQUEST_STOP_STREAM_COMMTEST) );
@@ -538,131 +688,28 @@ bool AmptekHardwareInterface::StopCommtestStreaming(){
 
 std::vector<unsigned int> AmptekHardwareInterface::GetSpectrum(double max_age_ms){
     updateSpectrum(max_age_ms);
-    std::vector<unsigned int> spec( last_spectrum, last_spectrum + spectrum_length );
-	   return spec;
+	return last_spectrum.bins;
 }
 
 
-int AmptekHardwareInterface::GetSpectrum(unsigned int* spectrum, double max_age_ms) {
-    updateSpectrum(max_age_ms);
-    spectrum = last_spectrum;
-    return spectrum_length;
-}
-
-
-
-int AmptekHardwareInterface::FastCount(double max_age_ms){
-    updateStatus(max_age_ms);
-    return mergeBytes(last_status[3],last_status[2],last_status[1],last_status[0]);
-}
-
-int AmptekHardwareInterface::SlowCount(double max_age_ms){
-    updateStatus(max_age_ms);
-    return mergeBytes(last_status[7],last_status[6],last_status[5],last_status[4]);
-}
-double AmptekHardwareInterface::DeadTime(double max_age_ms){
-    updateStatus(max_age_ms);
-    int sc = SlowCount(1e6);
-    int fc = FastCount(1e6);
-    if (fc ==0){
-        if (sc ==0){
-            return 0;
-        }else{
-            return 100.;
-        }
-    }
-    return 100. * (1. - 1.0 * sc/fc);
-}
-double AmptekHardwareInterface::AccTime(double max_age_ms){
-    updateStatus(max_age_ms);
-    return 0.001*last_status[12] + 0.1 *  mergeBytes(last_status[15],last_status[14],last_status[13]);
-}
-
-double AmptekHardwareInterface::RealTime(double max_age_ms){
-    updateStatus(max_age_ms);
-    return 0.001 *  mergeBytes(last_status[23],last_status[22],last_status[21],last_status[20]);
-}
-
-int AmptekHardwareInterface::FirmwareMajor(double max_age_ms){
-    updateStatus(max_age_ms);
-    return (last_status[24] >> 4);
-}
-
-int AmptekHardwareInterface::FirmwareMinor(double max_age_ms){
-    updateStatus(max_age_ms);
-    return(last_status[24] & ~(0x0F << 4));
-}
-
-int AmptekHardwareInterface::FirmwareBuild(double max_age_ms){
-    updateStatus(max_age_ms);
-    return(last_status[37] & ~(0x0F << 4));
-}
-
-int AmptekHardwareInterface::FpgaMajor(double max_age_ms){
-    updateStatus(max_age_ms);
-    return (last_status[25] >> 4);
-}
-
-int AmptekHardwareInterface::FpgaMinor(double max_age_ms){
-    updateStatus(max_age_ms);
-    return(last_status[25] & ~(0x0F << 4));
-}
-
-int AmptekHardwareInterface::SerialNb(double max_age_ms){
-    updateStatus(max_age_ms);
-    return mergeBytes(last_status[29],last_status[28],last_status[27],last_status[26]);
-}
-
-double AmptekHardwareInterface::HighVoltage(double max_age_ms){
-    updateStatus(max_age_ms);
-    return 0.5 * static_cast<signed_word16>( mergeBytes(last_status[30],last_status[31]) );
-}
-
-double AmptekHardwareInterface::DetectorTemp(double max_age_ms){
-    updateStatus(max_age_ms);
-    return 0.1 * mergeBytes(last_status[32] & ~(0x0F << 4),last_status[33]);
-}
-
-int AmptekHardwareInterface::BoardTemp(double max_age_ms){
-    updateStatus(max_age_ms);
-    return last_status[34];
-}
-
-bool AmptekHardwareInterface::IsPresetTimeReached(double max_age_ms){
-    updateStatus(max_age_ms);
-    return last_status[35] & (1 << 7);
-}
-
-bool AmptekHardwareInterface::IsEnabled(double max_age_ms){
-    updateStatus(max_age_ms);
-    return last_status[35] & (1 << 5);
-}
-bool AmptekHardwareInterface::IsPresetCountReached(double max_age_ms){
-    updateStatus(max_age_ms);
-    return last_status[35] & (1 << 4);
-}
-bool AmptekHardwareInterface::IsGated(double max_age_ms){
-    updateStatus(max_age_ms);
-    return !( last_status[35] & (1 << 3) );
-}
-int AmptekHardwareInterface::FpgaClock(double max_age_ms){
-    updateStatus(max_age_ms);
-    return last_status[36] & (1 << 1) ?  80 : 20;
-}
-int AmptekHardwareInterface::DeviceType(double max_age_ms){
-    updateStatus(max_age_ms);
-    return last_status[39];
-}
-
-
-double AmptekHardwareInterface::TecVoltage(double max_age_ms){
-    updateStatus(max_age_ms);
-    return 1./758.5 * mergeBytes(last_status[40],last_status[41]);
-}
+// int AmptekHardwareInterface::GetSpectrum(unsigned int* spectrum, double max_age_ms) {
+//     updateSpectrum(max_age_ms);
+//     spectrum = last_spectrum;
+//     return spectrum_length;
+// }
 
 
 
 
+
+/**
+ * @brief Throws AmptekException if packet is not of type Acknowledge OK.
+ * 
+ * This function can be wrapped around sendAndReceive calls if the request package ony expects an acknowledge response
+ * 
+ * 
+ * @param packet 
+ */
 void AmptekHardwareInterface::expectAcknowledge(Packet packet){
     if (packet.at(PID1) != DP5_P1_ACK){
         throw AmptekException("Response Package was not an Acknowledge: " + packet.toString());
