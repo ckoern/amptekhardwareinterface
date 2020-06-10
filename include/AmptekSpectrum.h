@@ -14,10 +14,10 @@ struct AmptekSpectrum{
         : nbins(nbins), timestamp(timestamp)
     {
         for (size_t i = 0; i < nbins; ++i){
-            bins.push_back(mergeBytes( raw_spec[DATA + 3*i + 2],
-                                          raw_spec[DATA + 3*i + 1],
-                                          raw_spec[DATA + 3*i    ]
-                                        )
+            bins.push_back(mergeBytes(  raw_spec[3*i + 2],
+                                        raw_spec[3*i + 1],
+                                        raw_spec[3*i    ]
+                                    )
                             );
         }
     }

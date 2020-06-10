@@ -5,6 +5,7 @@ from tango.server import Device, attribute, command, pipe, device_property
 from collections import OrderedDict
 import tango
 import AmptekHardwareInterface
+import numpy as np
 import os
 
 class AmptekPX5(Device):
@@ -43,6 +44,8 @@ class AmptekPX5(Device):
     SlowCount = attribute(label="SlowCount", dtype=int,
                       fget=lambda self: self.GetSlowCount(self._max_info_age))
 
+    GpCount = attribute(label="GpCount", dtype=int,
+                      fget=lambda self: self.GetGpCount(self._max_info_age))
 
     Spectrum = attribute(label="Spectrum", dtype=(int,),
                       fget=lambda self: self.GetSpectrum(self._max_info_age), max_dim_x = 8192)
@@ -449,69 +452,93 @@ class AmptekPX5(Device):
             f.write( self.create_dp5_config_string() )
             f.write( self.create_dpp_status_string() )
 
+    @command(dtype_in=(int,))
+    def StartCommtestStreaming(self, args):
+        print("test")
+        min_channel = np.uint16(args[0])
+        max_channel = np.uint16(args[1])
+        increment_channel = np.uint16(args[2])
+        rate = np.uint32(args[3])
+        #self.interface.StartCommtestStreaming(min_channel, max_channel, increment_channel, rate)
+        args = [int(a) for a in args]
+        self.interface.StartCommtestStreaming(*args)
+
+    @command
+    def StopCommtestStreaming(self):
+        self.interface.StopCommtestStreaming()
 
     def set_maxinfoage(self, x):
         self._max_info_age = x 
     
     def get_maxinfoage(self):
         return self._max_info_age
+
+    def get_status_attribute(self, max_age_ms, name):
+        if max_age_ms >= 0:
+            return getattr(self.interface.updateStatus(max_age_ms), name)()
+        else:
+            return getattr(self.interface.getStatus(), name)()
     
     @command(dtype_in = float, dtype_out=float)
     def GetDeadtime(self, max_age_ms):
-        return self.interface.DeadTime( max_age_ms )
+        return self.get_status_attribute(max_age_ms, "DeadTime")
 
     @command(dtype_in = float, dtype_out=int)
     def GetSlowCount(self, max_age_ms):
-        return self.interface.SlowCount( max_age_ms )
+        return self.get_status_attribute(max_age_ms, "SlowCount")
+
+    @command(dtype_in = float, dtype_out=int)
+    def GetGpCount(self, max_age_ms):
+        return self.get_status_attribute(max_age_ms, "GpCount")
 
     @command(dtype_in = float, dtype_out=int)
     def GetFastCount(self, max_age_ms):
-        return self.interface.FastCount( max_age_ms )
+        return self.get_status_attribute(max_age_ms, "FastCount")
 
     @command(dtype_in=float, dtype_out=(int,))
     def GetSpectrum(self, max_age_ms):
-        return self.interface.GetSpectrum( max_age_ms)
+        return self.interface.GetSpectrum(max_age_ms)
 
     @command(dtype_in = float, dtype_out=float)
     def GetAcctime(self, max_age_ms):
-        return self.interface.AccTime( max_age_ms )
+        return self.get_status_attribute(max_age_ms, "AccTime")
 
     @command(dtype_in = float, dtype_out=float)
     def GetRealtime(self, max_age_ms):
-        return self.interface.RealTime( max_age_ms )
+        return self.get_status_attribute(max_age_ms, "RealTime")
 
     @command(dtype_in = float, dtype_out=float)
     def GetHighVoltage(self, max_age_ms):
-        return self.interface.HighVoltage( max_age_ms )
+        return self.get_status_attribute(max_age_ms, "HighVoltage")
 
     @command(dtype_in = float, dtype_out=float)
     def GetDetectorTemp(self, max_age_ms):
-        return self.interface.DetectorTemp( max_age_ms )
+        return self.get_status_attribute(max_age_ms, "DetectorTemp")
 
     @command(dtype_in = float, dtype_out=float)
     def GetBoardTemp(self, max_age_ms):
-        return self.interface.BoardTemp( max_age_ms )
+        return self.get_status_attribute(max_age_ms, "BoardTemp")
 
     @command(dtype_in = float, dtype_out=bool)
     def IsPresetTimeReached(self, max_age_ms):
-        return self.interface.IsPresetTimeReached( max_age_ms )
+        return self.get_status_attribute(max_age_ms, "IsPresetTimeReached")
 
     @command(dtype_in = float, dtype_out=bool)
     def IsEnabled(self, max_age_ms):
-        return self.interface.IsEnabled( max_age_ms )
+        return self.get_status_attribute(max_age_ms, "IsEnabled")
 
     
     @command(dtype_in = float, dtype_out=bool)
     def IsGated(self, max_age_ms):
-        return self.interface.IsGated( max_age_ms )
+        return self.get_status_attribute(max_age_ms, "IsGated")
 
     @command(dtype_in = float, dtype_out=bool)
     def IsPresetCountReached(self, max_age_ms):
-        return self.interface.IsPresetCountReached( max_age_ms )
+        return self.get_status_attribute(max_age_ms, "IsPresetCountReached")
     
     @command(dtype_in = float, dtype_out=float)
     def GetTecVoltage(self, max_age_ms):
-        return self.interface.TecVoltage( max_age_ms )
+        return self.get_status_attribute(max_age_ms, "TecVoltage")
 
 
 
@@ -522,29 +549,30 @@ class AmptekPX5(Device):
         self._calibrationoffset = val
 
     def get_firmwaremajor(self):
+        return self.get_status_attribute(-1, "FirmwareMajor")
         return self.interface.FirmwareMajor()
 
     def get_firmwareminor(self):
-        return self.interface.FirmwareMinor()
+        return self.get_status_attribute(-1, "FirmwareMinor")
 
     def get_firmwarebuild(self):
-        return self.interface.FirmwareBuild()
+        return self.get_status_attribute(-1, "FirmwareBuild")
 
     def get_fpgamajor(self):
-        return self.interface.FpgaMajor()
+        return self.get_status_attribute(-1, "FpgaMajor")
 
     def get_fpgaminor(self):
-        return self.interface.FpgaMinor()
+        return self.get_status_attribute(-1, "FpgaMinor")
 
     def get_serialnb(self):
-        return self.interface.SerialNb()
+        return self.get_status_attribute(-1, "SerialNb")
 
     
     def get_fpgaclock(self):
-        return self.interface.FpgaClock()
+        return self.get_status_attribute(-1, "FpgaClock")
 
     def get_devtype(self):
-        devId = self.interface.DeviceType()
+        devId = self.get_status_attribute(-1, "DeviceType")
         if (devId ==0):
             return "DP5"
         elif (devId ==1):
@@ -634,7 +662,7 @@ class AmptekPX5(Device):
                     "FPGA: {fpga_major}.{fpga_minor}\n"
                     "Fast Count: {fastcount}\n"
                     "Slow Count: {slowcount}\n"
-                    "GP Count: 0\n"
+                    "GP Count: {gpcount}\n"
                     "Accumulation Time: {acc_time:.5f}\n"
                     "Real Time: {real_time:.5f}\n"
                     "Dead Time: {dead_time_pct:.2f}%\n"
@@ -642,31 +670,26 @@ class AmptekPX5(Device):
                     "TEC Temp: {detector_temp:.1f}K\n"
                     "Board Temp: {board_temp:.1f}C\n"
                     "<<DPP STATUS END>>\n")
-        self.interface.UpdateStatus()
-        tmp_max_info_age =  self._max_info_age 
-        self._max_info_age = 10000000
-        try:
-            outstring =  template.format( dev_type = self.get_devtype(),
-                                serial_nb = self.get_serialnb(),
-                                fw_major = self.get_firmwaremajor(),
-                                fw_minor = self.get_firmwareminor(),
-                                fw_build = self.get_firmwarebuild(),
-                                fpga_major = self.get_fpgamajor(),
-                                fpga_minor = self.get_fpgaminor(),
-                                fastcount = self.GetFastCount(self._max_info_age),
-                                slowcount = self.GetSlowCount(self._max_info_age),
-                                dead_time_pct = self.GetDeadtime(self._max_info_age),
-                                acc_time=self.GetAcctime(self._max_info_age),
-                                real_time = self.GetRealtime(self._max_info_age),
-                                dead_time = self.GetDeadtime(self._max_info_age),
-                                high_volt = self.GetHighVoltage(self._max_info_age),
-                                detector_temp = self.GetDetectorTemp(self._max_info_age),
-                                board_temp = self.GetBoardTemp(self._max_info_age)
-                            )
-        except:
-            self._max_info_age = tmp_max_info_age
-            raise
-        self._max_info_age = tmp_max_info_age
+        status = self.interface.UpdateStatus()
+
+        outstring =  template.format( dev_type = status.DeviceType(),
+                            serial_nb = status.SerialNb(),
+                            fw_major = status.FirmwareMajor(),
+                            fw_minor = status.FirmwareMinor(),
+                            fw_build = status.FirmwareBuild(),
+                            fpga_major = status.FpgaMajor(),
+                            fpga_minor = status.FpgaMinor(),
+                            fastcount = status.FastCount(),
+                            slowcount = status.SlowCount(),
+                            gpcount  = status.GpCount(),
+                            dead_time_pct = status.DeadTime(),
+                            acc_time=status.AccTime(),
+                            real_time = status.RealTime(),
+                            high_volt = status.HighVoltage(),
+                            detector_temp = status.DetectorTemp(),
+                            board_temp = status.BoardTemp(),
+                        )
+        
         return outstring
 
 

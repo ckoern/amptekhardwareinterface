@@ -654,7 +654,7 @@ bool AmptekHardwareInterface::StartCommtestStreaming(uint16_t min_channel,uint16
     }
     catch(AmptekException& e){
     
-            std::cerr<< "Failed stopping comm test: " << e.what() << std::endl;
+            std::cerr<< "Failed starting comm test: " << e.what() << std::endl;
             return false;
     }
     return true;

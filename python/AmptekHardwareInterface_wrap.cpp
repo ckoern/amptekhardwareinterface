@@ -14375,7 +14375,7 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_AmptekHardwareInterface_updateStatus(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_AmptekHardwareInterface_updateStatus__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   AmptekHardwareInterface *arg1 = (AmptekHardwareInterface *) 0 ;
   double arg2 ;
@@ -14399,6 +14399,96 @@ SWIGINTERN PyObject *_wrap_AmptekHardwareInterface_updateStatus(PyObject *SWIGUN
   } 
   arg2 = static_cast< double >(val2);
   result = (AmptekStatus *) &(arg1)->updateStatus(arg2);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_AmptekStatus, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_AmptekHardwareInterface_updateStatus__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  AmptekHardwareInterface *arg1 = (AmptekHardwareInterface *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  AmptekStatus *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:AmptekHardwareInterface_updateStatus",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_AmptekHardwareInterface, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "AmptekHardwareInterface_updateStatus" "', argument " "1"" of type '" "AmptekHardwareInterface *""'"); 
+  }
+  arg1 = reinterpret_cast< AmptekHardwareInterface * >(argp1);
+  result = (AmptekStatus *) &(arg1)->updateStatus();
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_AmptekStatus, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_AmptekHardwareInterface_updateStatus(PyObject *self, PyObject *args) {
+  Py_ssize_t argc;
+  PyObject *argv[3] = {
+    0
+  };
+  Py_ssize_t ii;
+  
+  if (!PyTuple_Check(args)) SWIG_fail;
+  argc = args ? PyObject_Length(args) : 0;
+  for (ii = 0; (ii < 2) && (ii < argc); ii++) {
+    argv[ii] = PyTuple_GET_ITEM(args,ii);
+  }
+  if (argc == 1) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_AmptekHardwareInterface, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      return _wrap_AmptekHardwareInterface_updateStatus__SWIG_1(self, args);
+    }
+  }
+  if (argc == 2) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_AmptekHardwareInterface, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      {
+        int res = SWIG_AsVal_double(argv[1], NULL);
+        _v = SWIG_CheckState(res);
+      }
+      if (_v) {
+        return _wrap_AmptekHardwareInterface_updateStatus__SWIG_0(self, args);
+      }
+    }
+  }
+  
+fail:
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'AmptekHardwareInterface_updateStatus'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    AmptekHardwareInterface::updateStatus(double)\n"
+    "    AmptekHardwareInterface::updateStatus()\n");
+  return 0;
+}
+
+
+SWIGINTERN PyObject *_wrap_AmptekHardwareInterface_getStatus(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  AmptekHardwareInterface *arg1 = (AmptekHardwareInterface *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  AmptekStatus *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:AmptekHardwareInterface_getStatus",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_AmptekHardwareInterface, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "AmptekHardwareInterface_getStatus" "', argument " "1"" of type '" "AmptekHardwareInterface *""'"); 
+  }
+  arg1 = reinterpret_cast< AmptekHardwareInterface * >(argp1);
+  result = (AmptekStatus *) &(arg1)->getStatus();
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_AmptekStatus, 0 |  0 );
   return resultobj;
 fail:
@@ -16117,6 +16207,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"AmptekHardwareInterface_SetPresetCounts", _wrap_AmptekHardwareInterface_SetPresetCounts, METH_VARARGS, NULL},
 	 { (char *)"AmptekHardwareInterface_SetTextConfiguration", _wrap_AmptekHardwareInterface_SetTextConfiguration, METH_VARARGS, NULL},
 	 { (char *)"AmptekHardwareInterface_updateStatus", _wrap_AmptekHardwareInterface_updateStatus, METH_VARARGS, NULL},
+	 { (char *)"AmptekHardwareInterface_getStatus", _wrap_AmptekHardwareInterface_getStatus, METH_VARARGS, NULL},
 	 { (char *)"AmptekHardwareInterface_EnableListMode", _wrap_AmptekHardwareInterface_EnableListMode, METH_VARARGS, NULL},
 	 { (char *)"AmptekHardwareInterface_ResetListModeTimer", _wrap_AmptekHardwareInterface_ResetListModeTimer, METH_VARARGS, NULL},
 	 { (char *)"AmptekHardwareInterface_DisableListMode", _wrap_AmptekHardwareInterface_DisableListMode, METH_VARARGS, NULL},

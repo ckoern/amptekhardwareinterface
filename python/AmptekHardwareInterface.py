@@ -661,8 +661,11 @@ class AmptekHardwareInterface(object):
     def SetTextConfiguration(self, commands):
         return _AmptekHardwareInterface.AmptekHardwareInterface_SetTextConfiguration(self, commands)
 
-    def updateStatus(self, max_age_ms):
+    def updateStatus(self, max_age_ms=100):
         return _AmptekHardwareInterface.AmptekHardwareInterface_updateStatus(self, max_age_ms)
+
+    def getStatus(self):
+        return _AmptekHardwareInterface.AmptekHardwareInterface_getStatus(self)
 
     def EnableListMode(self, targetfile):
         return _AmptekHardwareInterface.AmptekHardwareInterface_EnableListMode(self, targetfile)

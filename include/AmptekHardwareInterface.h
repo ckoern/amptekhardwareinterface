@@ -41,7 +41,8 @@ public:
     bool SetPresetRealTime(double t);
     bool SetPresetCounts(int c);
     bool SetTextConfiguration(std::vector<std::string> commands);
-    AmptekStatus& updateStatus(double max_age_ms );
+    AmptekStatus& updateStatus(double max_age_ms = 100 );
+    AmptekStatus& getStatus(){return last_status;}
 
     bool EnableListMode(std::string targetfile);
     bool ResetListModeTimer();
