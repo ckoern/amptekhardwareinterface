@@ -32,7 +32,7 @@ double AmptekStatus::AgeMillis() const{
  * 
  * @return int 
  */
-int AmptekStatus::FastCount(){
+int AmptekStatus::FastCount() const{
     
     return mergeBytes(raw_status[3],raw_status[2],raw_status[1],raw_status[0]);
 }
@@ -43,9 +43,17 @@ int AmptekStatus::FastCount(){
  * 
  * @return int counts
  */
-int AmptekStatus::SlowCount(){
+int AmptekStatus::SlowCount() const{
     
     return mergeBytes(raw_status[7],raw_status[6],raw_status[5],raw_status[4]);
+}
+/**
+ * @brief Current Count in the General Purpose Counter
+ * 
+ * @return int 
+ */
+int AmptekStatus::GpCount() const{
+    return mergeBytes(raw_status[11],raw_status[10],raw_status[9],raw_status[8]);
 }
 
 /**
@@ -53,7 +61,7 @@ int AmptekStatus::SlowCount(){
  * 
  * @return double dead time in per cent
  */
-double AmptekStatus::DeadTime(){
+double AmptekStatus::DeadTime() const{
     
     int sc = SlowCount();
     int fc = FastCount();
@@ -74,7 +82,7 @@ double AmptekStatus::DeadTime(){
  * 
  * @return double time in seconds
  */
-double AmptekStatus::AccTime(){
+double AmptekStatus::AccTime() const{
     
     return 0.001*raw_status[12] + 0.1 *  mergeBytes(raw_status[15],raw_status[14],raw_status[13]);
 }
@@ -84,7 +92,7 @@ double AmptekStatus::AccTime(){
  * 
  * @return double time in seconds
  */
-double AmptekStatus::RealTime(){
+double AmptekStatus::RealTime() const{
     
     return 0.001 *  mergeBytes(raw_status[23],raw_status[22],raw_status[21],raw_status[20]);
 }
@@ -95,7 +103,7 @@ double AmptekStatus::RealTime(){
  * 
  * @return int 
  */
-int AmptekStatus::FirmwareMajor(){
+int AmptekStatus::FirmwareMajor() const{
     
     return (raw_status[24] >> 4);
 }
@@ -106,7 +114,7 @@ int AmptekStatus::FirmwareMajor(){
  * 
  * @return int 
  */
-int AmptekStatus::FirmwareMinor(){
+int AmptekStatus::FirmwareMinor() const{
     
     return(raw_status[24] & ~(0x0F << 4));
 }
@@ -117,7 +125,7 @@ int AmptekStatus::FirmwareMinor(){
  * 
  * @return int 
  */
-int AmptekStatus::FirmwareBuild(){
+int AmptekStatus::FirmwareBuild() const{
     
     return(raw_status[37] & ~(0x0F << 4));
 }
@@ -127,7 +135,7 @@ int AmptekStatus::FirmwareBuild(){
  * 
  * @return int 
  */
-int AmptekStatus::FpgaMajor(){
+int AmptekStatus::FpgaMajor() const{
     
     return (raw_status[25] >> 4);
 }
@@ -138,7 +146,7 @@ int AmptekStatus::FpgaMajor(){
  * 
  * @return int 
  */
-int AmptekStatus::FpgaMinor(){
+int AmptekStatus::FpgaMinor() const{
     
     return(raw_status[25] & ~(0x0F << 4));
 }
@@ -149,7 +157,7 @@ int AmptekStatus::FpgaMinor(){
  * 
  * @return int 
  */
-int AmptekStatus::SerialNb(){
+int AmptekStatus::SerialNb() const{
     
     return mergeBytes(raw_status[29],raw_status[28],raw_status[27],raw_status[26]);
 }
@@ -160,7 +168,7 @@ int AmptekStatus::SerialNb(){
  * 
  * @return double in volts
  */
-double AmptekStatus::HighVoltage(){
+double AmptekStatus::HighVoltage() const{
     
     return 0.5 * static_cast<signed_word16>( mergeBytes(raw_status[30],raw_status[31]) );
 }
@@ -171,7 +179,7 @@ double AmptekStatus::HighVoltage(){
  * 
  * @return double temperature in Kelvin
  */
-double AmptekStatus::DetectorTemp(){
+double AmptekStatus::DetectorTemp() const{
     
     return 0.1 * mergeBytes(raw_status[32] & ~(0x0F << 4),raw_status[33]);
 }
@@ -181,7 +189,7 @@ double AmptekStatus::DetectorTemp(){
  * 
  * @return int in deg Celsius
  */
-int AmptekStatus::BoardTemp(){
+int AmptekStatus::BoardTemp() const{
     
     return raw_status[34];
 }
@@ -192,7 +200,7 @@ int AmptekStatus::BoardTemp(){
  * @return true  if acquisition was stopped due to reaching the set preset time
  * @return false  if not reached or not set
  */
-bool AmptekStatus::IsPresetTimeReached(){
+bool AmptekStatus::IsPresetTimeReached() const{
     
     return raw_status[35] & (1 << 7);
 }
@@ -203,7 +211,7 @@ bool AmptekStatus::IsPresetTimeReached(){
  * @return true if acquisition is running
  * @return false otherwise
  */
-bool AmptekStatus::IsEnabled(){
+bool AmptekStatus::IsEnabled() const{
     
     return raw_status[35] & (1 << 5);
 }
@@ -214,7 +222,7 @@ bool AmptekStatus::IsEnabled(){
  * @return true if acquisition was stopped due to reaching the set preset counts
  * @return false if not reached or not set
  */
-bool AmptekStatus::IsPresetCountReached(){
+bool AmptekStatus::IsPresetCountReached() const{
     
     return raw_status[35] & (1 << 4);
 }
@@ -225,7 +233,7 @@ bool AmptekStatus::IsPresetCountReached(){
  * @return true if gate active (rejecting counts)
  * @return false if disabled or deactivated (accepting counts)
  */
-bool AmptekStatus::IsGated(){
+bool AmptekStatus::IsGated() const{
     
     return !( raw_status[35] & (1 << 3) );
 }
@@ -235,7 +243,7 @@ bool AmptekStatus::IsGated(){
  * 
  * @return int clock speed in MHz
  */
-int AmptekStatus::FpgaClock(){
+int AmptekStatus::FpgaClock() const{
     
     return raw_status[36] & (1 << 1) ?  80 : 20;
 }
@@ -246,7 +254,7 @@ int AmptekStatus::FpgaClock(){
  * 
  * @return int 0: DP5, 1: PX5, 2: DP5G, 3: MCA8000D, 4: TB5, 5: DP5-X
  */
-int AmptekStatus::DeviceType(){
+int AmptekStatus::DeviceType() const{
     
     return raw_status[39];
 }
@@ -257,7 +265,7 @@ int AmptekStatus::DeviceType(){
  * 
  * @return double voltage in volts
  */
-double AmptekStatus::TecVoltage(){
+double AmptekStatus::TecVoltage() const{
     
     return 1./758.5 * mergeBytes(raw_status[40],raw_status[41]);
 }
@@ -269,7 +277,7 @@ double AmptekStatus::TecVoltage(){
  * @return true deadtime correction feature enabled
  * @return false normal list mode operation
  */
-bool AmptekStatus::ListModeLMMO(){
+bool AmptekStatus::ListModeLMMO() const{
     return raw_status[43] & (1 << 3);
 }
 
@@ -279,7 +287,7 @@ bool AmptekStatus::ListModeLMMO(){
  * 
  * @return int list mode clock speed in nanoseconds
  */
-int AmptekStatus::ListModeClock(){
+int AmptekStatus::ListModeClock() const{
     int multiplier  = ListModeSync() == 1 ? 1000 : 1;
     return raw_status[43] & (1 << 2) ? multiplier * 1000 : multiplier * 100;
 }
@@ -290,7 +298,7 @@ int AmptekStatus::ListModeClock(){
  * 
  * @return int 0: internal, 1: no timetag, 2: external, 3: frame
  */
-int AmptekStatus::ListModeSync(){
+int AmptekStatus::ListModeSync() const{
     return raw_status[43] & 0b11;
 }
 
@@ -301,7 +309,7 @@ int AmptekStatus::ListModeSync(){
  * @return true if running
  * @return false if finished or disabled
  */
-bool AmptekStatus::SequentialBufferRunning(){
+bool AmptekStatus::SequentialBufferRunning() const{
     return raw_status[46] & (1 << 1);
 }
 
@@ -310,7 +318,7 @@ bool AmptekStatus::SequentialBufferRunning(){
  * 
  * @return int current buffer index
  */
-int AmptekStatus::SequentialBufferIndex(){
+int AmptekStatus::SequentialBufferIndex() const{
     return ( (raw_status[46] & (0b1)) << 8) + raw_status[47]; // 9 bit value
 }
 
