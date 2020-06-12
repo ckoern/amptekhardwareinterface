@@ -420,8 +420,15 @@ class AmptekPX5(Device):
                 self.warn_stream("Cannot interpret line '%s'. Will be ignored for configuration loading!"%line.strip())
         success =  self.interface.SetTextConfiguration(  ["RESC=YES"] + self.sort_commands(cmds, vals) )
         if not success:
+            for cmd_str in self.sort_commands(cmds, vals ):
+                print(cmd_str)
+                success = self.interface.SetTextConfiguration(  [cmd_str] )
+                if not success:
+                    print("Failed sending command %s"%cmd_str)
             self.set_state(tango.DevState.ALARM)
             self.error_stream("Failed Setting the text configuration!")
+        for _,c in self.parameter_dicts.items():
+            self.load_config_dict(c)
 
     @command(dtype_in=str)
     def SaveConfigurationFile(self, filepath):
@@ -540,7 +547,10 @@ class AmptekPX5(Device):
     def GetTecVoltage(self, max_age_ms):
         return self.get_status_attribute(max_age_ms, "TecVoltage")
 
-
+    @command 
+    def ClearAlarm(self):
+        self.set_state(DevState.On)
+        self.dev_state()
 
     def set_calibrationslope(self, val):
         self._calibrationslope = val
@@ -670,7 +680,7 @@ class AmptekPX5(Device):
                     "TEC Temp: {detector_temp:.1f}K\n"
                     "Board Temp: {board_temp:.1f}C\n"
                     "<<DPP STATUS END>>\n")
-        status = self.interface.UpdateStatus()
+        status = self.interface.updateStatus(0)
 
         outstring =  template.format( dev_type = status.DeviceType(),
                             serial_nb = status.SerialNb(),

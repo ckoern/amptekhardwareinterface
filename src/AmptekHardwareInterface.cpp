@@ -247,6 +247,11 @@ bool AmptekHardwareInterface::SetPresetCounts(int c){
  * @return false on failure
  */
 bool AmptekHardwareInterface::SetTextConfiguration(std::vector<std::string> commands){
+    std::cout << "Configuration is\n";
+        for (auto cmd :commands){
+            std::cout << "\t" << cmd << "\n";
+        }
+        std::cout << std::endl;
     try{
 
         stringstream cmdstream;
@@ -258,6 +263,7 @@ bool AmptekHardwareInterface::SetTextConfiguration(std::vector<std::string> comm
 
             // if max packet size (512) would be exceeded when adding this command, send the previous commands and clear the input stringstream
             if(  streamsize + cmd.size() > 511){
+                std::cout << "Send " << cmdstream.str() << std::endl;
                 expectAcknowledge( connection_handler->sendAndReceive( Packet::gernerateSetConfigurationRequest( cmdstream.str() ) ) );
                 cmdstream = stringstream();
             }
@@ -268,12 +274,18 @@ bool AmptekHardwareInterface::SetTextConfiguration(std::vector<std::string> comm
 
             // if this is the last command in the loop, send the stringstream even if max size is not reached
             if(  i == commands.size()-1 ){
+                std::cout << "Send " << cmdstream.str() << std::endl;
                 expectAcknowledge( connection_handler->sendAndReceive( Packet::gernerateSetConfigurationRequest( cmdstream.str() ) ) );
             }
         }
     }
     catch( AmptekException& e){
-        std::cerr << e.what() << std::endl;
+        std::cerr << "Failed sending Text Config: " << e.what() <<  "\n";
+        std::cerr << "Configuration was\n";
+        for (auto cmd :commands){
+            std::cerr << "\t" << cmd << "\n";
+        }
+        std::cerr << std::endl;
         current_state = ERROR;
         return false;
     }
