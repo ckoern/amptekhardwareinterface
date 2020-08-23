@@ -4,7 +4,7 @@ from tango import AttrQuality, AttrWriteType, DispLevel, DevState, DebugIt
 from tango.server import Device, attribute, command, pipe, device_property
 from collections import OrderedDict
 import tango
-import AmptekHardwareInterface
+from amptek_hardware_interface import AmptekHardwareInterface
 import numpy as np
 import os
 
@@ -221,6 +221,8 @@ class AmptekPX5(Device):
         self.other_params["TECS"] = { "value": "N/A", "name": "TEC Temperature Target"  }
         self.other_params["PAPS"] = { "value": "N/A", "name": "Preamp Volage", "options":  ["8.5", "5", "OFF"]  }
         self.other_params["MCAE"] = { "value": "N/A", "name": "Initial MCA Enable", "options":  ["ON", "OFF"]  }
+        self.other_params["CON1"] = { "value": "N/A", "name": "Connector 1 Select (PX5)", "options":  ["DAC","AUXOUT1","AUXIN1"]  }
+        self.other_params["CON2"] = { "value": "N/A", "name": "Connector 2 Select (PX5)", "options":  ["AUXOUT2","AUXIN2","GATEH","GATEL"]  }
 
         self.parameter_dicts['other']= self.other_params
 
@@ -613,9 +615,11 @@ class AmptekPX5(Device):
 
     def set_presetacctime(self, t):
         self.interface.SetPresetAccumulationTime(t)
+        self.load_config_dict( self.acquisition_params )
 
     def set_presetrealtime(self, t):
         self.interface.SetPresetRealTime(t)
+        self.load_config_dict( self.acquisition_params )
 
 
 

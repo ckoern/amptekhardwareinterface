@@ -14,7 +14,7 @@ except AttributeError:
     numpy_include = numpy.get_numpy_include()
 # HexitecIO extension module
 _AmptekHardwareInterface = Extension("_AmptekHardwareInterface",
-                   ["python/AmptekHardwareInterface.i",] + ["src/" + f for f in os.listdir("src") if os.path.isfile("src/" + f)],
+                   ["python/amptek_hardware_interface/AmptekHardwareInterface.i",] + ["src/" + f for f in os.listdir("src") if os.path.isfile("src/" + f)],
                    include_dirs = [numpy_include, "include"],
                    swig_opts=['-c++',"-modern" , "-nomodernargs"],
                    extra_compile_args = ["-std=c++11", "-g"], 
@@ -24,7 +24,9 @@ _AmptekHardwareInterface = Extension("_AmptekHardwareInterface",
 # NumyTypemapTests setup
 setup(  name        = "AmptekHardwareInterface function",
         description = "Implementation of the Amptek DP5 Protocol",
-        scripts     = ["python/AmptekPX5.py"],
+        package_dir = {"amptek_hardware_interface": "python/amptek_hardware_interface"},
+        packages    = ["amptek_hardware_interface"],
+        scripts     = ["python/amptek_hardware_interface/AmptekPX5"],    
         author      = "Christian Koernig",
         version     = "0.1",
         ext_modules = [_AmptekHardwareInterface]
