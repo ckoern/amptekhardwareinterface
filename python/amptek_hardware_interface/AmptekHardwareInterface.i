@@ -22,6 +22,7 @@ namespace std {
    %template(StringVector) vector<std::string>;
    %template(DoubleVector) vector<double>;
    %template(UIntVector) vector<unsigned int>;
+   %template(AmptekDataPair) pair<AmptekSpectrum, AmptekStatus>;
 }
 %except {
 	try {

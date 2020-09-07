@@ -15,6 +15,7 @@ public:
 
 private:
     void readConfig(char* configs);
+    void initConfigs();
     std::string buildConfigResponse(char* config_names);
     void createStatusData(byte* buffer);
     void createSpectrumData(byte* buffer);

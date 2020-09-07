@@ -44,7 +44,7 @@ Packet AmptekSimulatorConnectionHandler::sendAndReceive( const Packet& request){
         p.setData(arr, len);
     }
     else if (pid1 == Packet::DP5_PKT_REQUEST_SPECTRUM_AND_STATUS.at(PID1) 
-     && pid2 == Packet::DP5_PKT_REQUEST_SPECTRUM_AND_STATUS.at(PID2))
+     && (pid2 == DP5_P2_SPECTRUM_REQUEST_SPECTRUM_STATUS || pid2 ==  DP5_P2_SPECTRUM_REQUEST_GET_BUFFER) )
     {
         p.setPid1( DP5_P1_SPECTRUM_RESPONSE );
         switch (speclen){
@@ -86,26 +86,16 @@ Packet AmptekSimulatorConnectionHandler::sendAndReceive( const Packet& request){
         p.resize( MIN_PACKET_LEN + len );
         p.setData(arr, len);
     }
-    else if (pid1 == 0x20 
-     && pid2 == 0x03)
+    else if (pid1 == DP5_P1_TEXTCONFIG_REQUEST
+     && pid2 == DP5_P2_TEXTCONFIG_REQUEST_GET)
     {
         p.setPid1( DP5_P1_DATA_RESPONSE );
         p.setPid2( DP5_P2_DATA_RESPONSE_CONFIG_READBACK );
 
         char configs[ request.dataLength + 1 ];
         byteToChar( (byte*)&(request.at(DATA)), configs, request.dataLength );
-        std::cout << configs << std::endl;
         string configstring = buildConfigResponse(configs);
         std::cout << configstring << std::endl;
-        // std::stringstream configs;
-
-        // configs << "MCAC=" << std::to_string(speclen) << ";PRET=";
-        // if (acquisition_time > 0){
-        //     configs << std::setw(2) << std::fixed << acquisition_time;
-        // } else{
-        //     configs << "OFF";
-        // }
-        // string configstring = configs.str();
         word16 len =  configstring.size();
         byte arr[len];
         charToByte(configstring.c_str(), arr, len);
@@ -135,12 +125,15 @@ Packet AmptekSimulatorConnectionHandler::sendAndReceive( const Packet& request){
     {
         return Packet(DP5_P1_ACK, DP5_P2_ACK_OK, nullptr, 0);
     }
-    else if(pid1 == 0x20 //set Text Config
-              && pid2 == 0x02)
+    else if(pid1 == DP5_P1_TEXTCONFIG_REQUEST
+              && pid2 == DP5_P2_TEXTCONFIG_REQUEST_SET)
     {
         char configs[ request.dataLength + 1 ];
         byteToChar( (byte*)&(request.at(DATA)), configs, request.dataLength );
         readConfig(configs);
+        return Packet(DP5_P1_ACK, DP5_P2_ACK_OK, nullptr, 0);
+    }
+    else{
         return Packet(DP5_P1_ACK, DP5_P2_ACK_OK, nullptr, 0);
     }
     p.calcAndFillChecksum();
@@ -151,6 +144,7 @@ Packet AmptekSimulatorConnectionHandler::sendAndReceive( const Packet& request){
 AmptekSimulatorConnectionHandler::AmptekSimulatorConnectionHandler(){
     spectrum = new unsigned int[speclen];
     clear();
+    initConfigs();
     spectrum_thread = new std::thread( 
         [&]{
             auto start_time = std::chrono::system_clock::now();
@@ -299,4 +293,76 @@ std::string  AmptekSimulatorConnectionHandler::buildConfigResponse(char* config_
         }
     }
     return configresponse_stream.str();
+}
+
+
+
+void AmptekSimulatorConnectionHandler::initConfigs(){
+    text_configs["AINP"] = "NEG";
+    text_configs["AU34"] = "1";
+    text_configs["AUO1"] = "ICR";
+    text_configs["AUO2"] = "ICR";
+    text_configs["BLRD"] = "0";
+    text_configs["BLRM"] = "OFF";
+    text_configs["BLRU"] = "0";
+    text_configs["CON1"] = "DAC";
+    text_configs["CON2"] = "AUXOUT2";
+    text_configs["CLCK"] = "AUTO";
+    text_configs["CLKL"] = "100";
+    text_configs["CUSP"] = "0";
+    text_configs["DACF"] = "0";
+    text_configs["DACO"] = "OFF";
+    text_configs["GAIA"] = "0";
+    text_configs["GAIF"] = "1";
+    text_configs["GAIN"] = "1";
+    text_configs["GATE"] = "OFF";
+    text_configs["GPED"] = "FALLING";
+    text_configs["GPGA"] = "ON";
+    text_configs["GPIN"] = "AUX1";
+    text_configs["GPMC"] = "ON";
+    text_configs["GPME"] = "ON";
+    text_configs["HVSE"] = "OFF";
+    text_configs["INOF"] = "DEF";
+    text_configs["INOG"] = "LOW";
+    text_configs["MCAC"] = std::to_string(speclen);
+    text_configs["MCAE"] = "OFF";
+    text_configs["MCAS"] = "NORM";
+    text_configs["MCSL"] = "0";
+    text_configs["MCSH"] = "8191";
+    text_configs["MCST"] = "1";
+    text_configs["PAPS"] = "OFF";
+    text_configs["PAPZ"] = "OFF";
+    text_configs["PDMD"] = "NORM";
+    text_configs["PRCL"] = "0";
+    text_configs["PRCH"] = "8191";
+    text_configs["PREC"] = "OFF";
+    text_configs["PREL"] = "OFF";
+    text_configs["PRER"] = "OFF";
+    text_configs["PRET"] = "OFF";
+    text_configs["PURE"] = "OFF";
+    text_configs["RESL"] = "OFF";
+    text_configs["RTDD"] = "0";
+    text_configs["RTDE"] = "OFF";
+    text_configs["RTDS"] = "0";
+    text_configs["RTDT"] = "0";
+    text_configs["RTDW"] = "0";
+    text_configs["SCAH"] = "0";
+    text_configs["SCAI"] = "1";
+    text_configs["SCAL"] = "0";
+    text_configs["SCAO"] = "OFF";
+    text_configs["SCAW"] = "100";
+    text_configs["SCOE"] = "RISING";
+    text_configs["SCOG"] = "1";
+    text_configs["SCOT"] = "87";
+    text_configs["SOFF"] = "OFF";
+    text_configs["SYNC"] = "INT";
+    text_configs["TECS"] = "OFF";
+    text_configs["TFLA"] = "0";
+    text_configs["THFA"] = "0";
+    text_configs["THSL"] = "0";
+    text_configs["TLLD"] = "OFF";
+    text_configs["TPEA"] = "0.4";
+    text_configs["TPFA"] = "400";
+    text_configs["TPMO"] = "OFF";
+    text_configs["VOLU"] = "OFF";
 }

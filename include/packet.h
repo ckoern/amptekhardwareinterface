@@ -111,24 +111,24 @@ enum PID2_SUBTYPE_COMMTEST_RESPONSE{
 
 
 enum PID2_SUBTYPE_ACK{
-    DP5_P2_ACK_OK =                0x00,
-    DP5_P2_ACK_SYNC_ERR =          0x01,
-    DP5_P2_ACK_PID_ERR =           0x02,
-    DP5_P2_ACK_LEN_ERR =           0x03,
-    DP5_P2_ACK_CHECKSUM_ERR =      0x04,
-    DP5_P2_ACK_BADPARAM_ERR =      0x05,
-    DP5_P2_ACK_BADHEX_ERR =        0x06,
-    DP5_P2_ACK_BADCMD_ERR =        0x07,
-    DP5_P2_ACK_FPGA_ERR =          0x08,
-    DP5_P2_ACK_CP2201_ERR =        0x09,
-    DP5_P2_ACK_SCOPE_ERR =         0x0A,
-    DP5_P2_ACK_PC5_ERR =           0x0B,
-    DP5_P2_ACK_OK_SHARING =        0x0C,
-    DP5_P2_ACK_BUSY_ERR =          0x0D,
-    DP5_P2_ACK_I2C_ERR =           0x0E,
-    DP5_P2_ACK_OK_FPGAADDR =       0x0F,
-    DP5_P2_ACK_VERSION_ERR =       0x10,
-    DP5_P2_ACK_CALIB_ERR =         0x11
+    DP5_P2_ACK_OK                = 0x00,
+    DP5_P2_ACK_SYNC_ERR          = 0x01,
+    DP5_P2_ACK_PID_ERR           = 0x02,
+    DP5_P2_ACK_LEN_ERR           = 0x03,
+    DP5_P2_ACK_CHECKSUM_ERR      = 0x04,
+    DP5_P2_ACK_BADPARAM_ERR      = 0x05,
+    DP5_P2_ACK_BADHEX_ERR        = 0x06,
+    DP5_P2_ACK_BADCMD_ERR        = 0x07,
+    DP5_P2_ACK_FPGA_ERR          = 0x08,
+    DP5_P2_ACK_CP2201_ERR        = 0x09,
+    DP5_P2_ACK_SCOPE_ERR         = 0x0A,
+    DP5_P2_ACK_PC5_ERR           = 0x0B,
+    DP5_P2_ACK_OK_SHARING        = 0x0C,
+    DP5_P2_ACK_BUSY_ERR          = 0x0D,
+    DP5_P2_ACK_I2C_ERR           = 0x0E,
+    DP5_P2_ACK_OK_FPGAADDR       = 0x0F,
+    DP5_P2_ACK_VERSION_ERR       = 0x10,
+    DP5_P2_ACK_CALIB_ERR         = 0x11
 };
 
 class AmptekException : public std::runtime_error

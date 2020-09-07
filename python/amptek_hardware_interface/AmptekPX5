@@ -461,6 +461,27 @@ class AmptekPX5(Device):
             f.write( self.create_dp5_config_string() )
             f.write( self.create_dpp_status_string() )
 
+
+    @command(dtype_in=(str,) )
+    def SaveBufferedSpectrumAsMCA(self, args):
+        buffer_index, filepath = args
+        buffer_index= int(buffer_index)
+        if os.path.exists(filepath):
+            self.set_state(tango.DevState.ALARM)
+            raise RuntimeError("File already exists!")   
+        if not os.path.exists(os.path.dirname(filepath)):
+            self.set_state(tango.DevState.ALARM)
+            raise RuntimeError("Directory %s does not exist (filename: %s)!"%(os.path.dirname(filepath), filepath) )   
+
+        spectrum, status = self.interface.GetBufferedSpectrum( buffer_index )
+
+        with open(filepath, "w+") as f:
+            f.write( self.create_pmca_spectrum_string() )
+            f.write( self.create_calibration_string() )
+            f.write( self.create_data_string() )
+            f.write( self.create_dp5_config_string() )
+            f.write( self.create_dpp_status_string() )
+
     @command(dtype_in=(int,))
     def StartCommtestStreaming(self, args):
         print("test")
@@ -475,6 +496,18 @@ class AmptekPX5(Device):
     @command
     def StopCommtestStreaming(self):
         self.interface.StopCommtestStreaming()
+
+
+    @command(dtype_in = int)
+    def BufferSpectrum(self, index):
+        self.interface.BufferSpectrum(index)
+
+    @command(dtype_in = int)
+    def BufferAndClearSpectrum(self, index):
+        self.interface.BufferAndClearSpectrum(index)
+
+
+
 
     def set_maxinfoage(self, x):
         self._max_info_age = x 
@@ -551,7 +584,7 @@ class AmptekPX5(Device):
 
     @command 
     def ClearAlarm(self):
-        self.set_state(DevState.On)
+        self.set_state(DevState.ON)
         self.dev_state()
 
     def set_calibrationslope(self, val):
@@ -667,7 +700,7 @@ class AmptekPX5(Device):
 
 
 
-    def create_dpp_status_string(self):
+    def create_dpp_status_string(self, status = None):
         template = ("<<DPP STATUS>>\n"
                     "Device Type: {dev_type}\n"
                     "Serial Number: {serial_nb}\n"
@@ -683,7 +716,8 @@ class AmptekPX5(Device):
                     "TEC Temp: {detector_temp:.1f}K\n"
                     "Board Temp: {board_temp:.1f}C\n"
                     "<<DPP STATUS END>>\n")
-        status = self.interface.updateStatus(0)
+        if status is None:
+            status = self.interface.updateStatus(0)
 
         outstring =  template.format( dev_type = status.DeviceType(),
                             serial_nb = status.SerialNb(),
@@ -722,9 +756,11 @@ class AmptekPX5(Device):
     def create_calibration_string(self):
         return ""
 
-    def create_data_string(self):
+    def create_data_string(self, spectrum = None):
+        if spectrum is None:
+            spectrum =  self.GetSpectrum(self._max_info_age)
         outstring = "<<DATA>>\n"
-        outstring += "\n".join([str(c) for c in self.GetSpectrum(self._max_info_age)] ) + "\n"
+        outstring += "\n".join([str(c) for c in spectrum] ) + "\n"
         outstring += "<<END>>\n"
         return outstring
 

@@ -553,7 +553,7 @@ bool AmptekHardwareInterface::ResetListModeTimer(){
  * @return true on success
  * @return false on failure
  */
-bool AmptekHardwareInterface::startBuffering(){
+bool AmptekHardwareInterface::startHardwareBuffering(){
     try{
         expectAcknowledge(connection_handler->sendAndReceive( Packet::DP5_PKT_REQUEST_RESTART_SEQ_BUFFERING) );
     }
@@ -572,13 +572,40 @@ bool AmptekHardwareInterface::startBuffering(){
  * @return true on success
  * @return false on failure
  */
-bool AmptekHardwareInterface::stopBuffering(){
+bool AmptekHardwareInterface::stopHardwareBuffering(){
     try{
         expectAcknowledge(connection_handler->sendAndReceive( Packet::DP5_PKT_REQUEST_CANCEL_SEQ_BUFFERING) );
     }
     catch(AmptekException& e){
     
             std::cerr<< "Failed clearing list-mode timer: " << e.what() << std::endl;
+            return false;
+    }
+    return true;
+}
+
+
+
+bool AmptekHardwareInterface::BufferAndClearSpectrum(uint16_t index){
+    try{
+        expectAcknowledge(connection_handler->sendAndReceive( Packet::generateBufferAndClearRequest(index)  ) );
+    }
+    catch(AmptekException& e){
+    
+            std::cerr<< "Failed sending buffer request: " << e.what() << std::endl;
+            return false;
+    }
+    return true;
+}
+
+
+bool AmptekHardwareInterface::BufferSpectrum(uint16_t index){
+    try{
+        expectAcknowledge(connection_handler->sendAndReceive( Packet::generateBufferRequest(index)  ) );
+    }
+    catch(AmptekException& e){
+    
+            std::cerr<< "Failed sending buffer request: " << e.what() << std::endl;
             return false;
     }
     return true;

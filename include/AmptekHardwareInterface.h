@@ -48,8 +48,10 @@ public:
     bool ResetListModeTimer();
     bool DisableListMode();
 
-    bool startBuffering();
-    bool stopBuffering();
+    bool startHardwareBuffering();
+    bool stopHardwareBuffering();
+    bool BufferSpectrum(uint16_t index);
+    bool BufferAndClearSpectrum(uint16_t index);
     std::pair<AmptekSpectrum, AmptekStatus> GetBufferedSpectrum(size_t id);
 
     bool StartCommtestStreaming(uint16_t min_channel,uint16_t max_channel, 
