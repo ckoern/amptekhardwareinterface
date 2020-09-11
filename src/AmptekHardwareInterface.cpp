@@ -661,6 +661,7 @@ std::pair<AmptekSpectrum, AmptekStatus>  AmptekHardwareInterface::GetBufferedSpe
     int spectrum_bytesize = 3*spectrum_length;
     AmptekSpectrum buffered_spectrum( &(spectrumResponse.at(DATA) ), spectrum_length );
     AmptekStatus buffered_status(&(spectrumResponse.at(DATA + spectrum_bytesize)));
+    std:cout << buffered_status.SlowCount() << std::endl;
     return  std::pair<AmptekSpectrum, AmptekStatus>( buffered_spectrum, buffered_status );
 }
 

@@ -16173,11 +16173,10 @@ SWIGINTERN PyObject *AmptekStatus_swigregister(PyObject *SWIGUNUSEDPARM(self), P
 SWIGINTERN PyObject *_wrap_AmptekSpectrum_bins_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   AmptekSpectrum *arg1 = (AmptekSpectrum *) 0 ;
-  std::vector< unsigned int,std::allocator< unsigned int > > *arg2 = (std::vector< unsigned int,std::allocator< unsigned int > > *) 0 ;
+  std::vector< unsigned int,std::allocator< unsigned int > > *arg2 = 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   
@@ -16187,15 +16186,23 @@ SWIGINTERN PyObject *_wrap_AmptekSpectrum_bins_set(PyObject *SWIGUNUSEDPARM(self
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "AmptekSpectrum_bins_set" "', argument " "1"" of type '" "AmptekSpectrum *""'"); 
   }
   arg1 = reinterpret_cast< AmptekSpectrum * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_std__vectorT_unsigned_int_std__allocatorT_unsigned_int_t_t, 0 |  0 );
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "AmptekSpectrum_bins_set" "', argument " "2"" of type '" "std::vector< unsigned int,std::allocator< unsigned int > > *""'"); 
+  {
+    std::vector< unsigned int,std::allocator< unsigned int > > *ptr = (std::vector< unsigned int,std::allocator< unsigned int > > *)0;
+    res2 = swig::asptr(obj1, &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "AmptekSpectrum_bins_set" "', argument " "2"" of type '" "std::vector< unsigned int,std::allocator< unsigned int > > const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "AmptekSpectrum_bins_set" "', argument " "2"" of type '" "std::vector< unsigned int,std::allocator< unsigned int > > const &""'"); 
+    }
+    arg2 = ptr;
   }
-  arg2 = reinterpret_cast< std::vector< unsigned int,std::allocator< unsigned int > > * >(argp2);
   if (arg1) (arg1)->bins = *arg2;
   resultobj = SWIG_Py_Void();
+  if (SWIG_IsNewObj(res2)) delete arg2;
   return resultobj;
 fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
   return NULL;
 }
 
@@ -16214,8 +16221,8 @@ SWIGINTERN PyObject *_wrap_AmptekSpectrum_bins_get(PyObject *SWIGUNUSEDPARM(self
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "AmptekSpectrum_bins_get" "', argument " "1"" of type '" "AmptekSpectrum *""'"); 
   }
   arg1 = reinterpret_cast< AmptekSpectrum * >(argp1);
-  result = (std::vector< unsigned int,std::allocator< unsigned int > > *)& ((arg1)->bins);
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_std__vectorT_unsigned_int_std__allocatorT_unsigned_int_t_t, 0 |  0 );
+  result = (std::vector< unsigned int,std::allocator< unsigned int > > *) & ((arg1)->bins);
+  resultobj = swig::from(static_cast< std::vector< unsigned int,std::allocator< unsigned int > > >(*result));
   return resultobj;
 fail:
   return NULL;

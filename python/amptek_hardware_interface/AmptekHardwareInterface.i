@@ -10,6 +10,8 @@
 %init %{
     import_array();
 %}
+%naturalvar AmptekSpectrum::bins;
+
 %numpy_typemaps(unsigned int      , NPY_UINT     , int)
 
 %include "stdint.i"

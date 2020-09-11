@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+import logging 
+
+logging.basicConfig(
+    format='%(asctime)s %(levelname)-8s %(message)s',
+    level=logging.DEBUG,
+    datefmt='%Y-%m-%d %H:%M:%S')
 
 from tango import AttrQuality, AttrWriteType, DispLevel, DevState, DebugIt
 from tango.server import Device, attribute, command, pipe, device_property
@@ -447,6 +453,7 @@ class AmptekPX5(Device):
 
     @command(dtype_in=str)
     def SaveSpectrumAsMCA(self, filepath):
+        
         if os.path.exists(filepath):
             self.set_state(tango.DevState.ALARM)
             raise RuntimeError("File already exists!")   
@@ -464,8 +471,10 @@ class AmptekPX5(Device):
 
     @command(dtype_in=(str,) )
     def SaveBufferedSpectrumAsMCA(self, args):
+        logging.debug("SaveBufferedSpectrumAsMCA called")
         buffer_index, filepath = args
         buffer_index= int(buffer_index)
+        logging.debug("Buffer Index %d, Target File: %s"%(buffer_index, filepath))
         if os.path.exists(filepath):
             self.set_state(tango.DevState.ALARM)
             raise RuntimeError("File already exists!")   
@@ -473,14 +482,22 @@ class AmptekPX5(Device):
             self.set_state(tango.DevState.ALARM)
             raise RuntimeError("Directory %s does not exist (filename: %s)!"%(os.path.dirname(filepath), filepath) )   
 
+        logging.debug("get buffered spectrum")
         spectrum, status = self.interface.GetBufferedSpectrum( buffer_index )
-
+        spectrum = spectrum.bins
+        logging.debug(status.SlowCount() )
         with open(filepath, "w+") as f:
+            logging.debug("call create_pmca_spectrum_string")
             f.write( self.create_pmca_spectrum_string() )
+            logging.debug("call create_calibration_string")
             f.write( self.create_calibration_string() )
-            f.write( self.create_data_string() )
+            logging.debug("call create_data_string")
+            f.write( self.create_data_string(spectrum=spectrum) )
+            logging.debug("call create_dp5_config_string")
             f.write( self.create_dp5_config_string() )
-            f.write( self.create_dpp_status_string() )
+            logging.debug("call create_dpp_status_string")
+            f.write( self.create_dpp_status_string(status=status) )
+        logging.debug("finished SaveBufferedSpectrumAsMCA")
 
     @command(dtype_in=(int,))
     def StartCommtestStreaming(self, args):
@@ -505,6 +522,7 @@ class AmptekPX5(Device):
     @command(dtype_in = int)
     def BufferAndClearSpectrum(self, index):
         self.interface.BufferAndClearSpectrum(index)
+        self.ClearSpectrum()
 
 
 
