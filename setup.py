@@ -15,8 +15,8 @@ except AttributeError:
 # HexitecIO extension module
 _AmptekHardwareInterface = Extension("amptek_hardware_interface._AmptekHardwareInterface",
                    ["python/amptek_hardware_interface/AmptekHardwareInterface.i",] + ["src/" + f for f in os.listdir("src") if os.path.isfile("src/" + f)],
-                   include_dirs = [numpy_include, "include"],
-                   swig_opts=['-c++',"-modern", "-nomodernargs" ],
+                   include_dirs = [numpy_include, "include", "src"],
+                   swig_opts=['-c++',"-doxygen"],
                    extra_compile_args = ["-std=c++11", "-g"], 
                    libraries=["usb-1.0"]
                    )

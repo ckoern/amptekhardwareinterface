@@ -4,7 +4,7 @@
     #define SWIG_FILE_WITH_INIT
     #include "AmptekHardwareInterface.h"
 %}
-
+%feature("autodoc");
 %include "numpy.i"
 %include "std_string.i"
 %init %{

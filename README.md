@@ -12,7 +12,7 @@ Additionally, a basic simulator interface can be used during DAQ logic developme
 Prerequisites
 -------------
  - libusb1-dev
- - SWIG 3 (v4 currently not supported)
+ - SWIG v4
  - numpy
  - pytango (optionally, only when using the tango server)
  

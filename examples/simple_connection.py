@@ -19,8 +19,9 @@ amptek = ahi.AmptekHardwareInterface()
 # To connect to a specific device, change the -1 to the serial number
 # For basic tests, the simulator interface can be used, of no hardware is available.
 # Use amptek.connectSimulator() instead
-amptek.connectUSB(-1)
 
+amptek.connectUSB(-1)
+# amptek.connectSimulator()
 
 
 
