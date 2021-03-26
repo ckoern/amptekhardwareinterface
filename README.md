@@ -7,6 +7,7 @@ The low level communication is implemented in C++ and supports both Ethernet via
 The low level implementation is based on [previous work](https://github.com/ALBA-Synchrotron/AmptekPX5DS) at the ALBA synchrotron. However, the communication layer has been completely redesigned for more stability and added support for USB connections, circumventing the bottleneck of the low speed base-10 ethernet PHY of the hardware.
 This code is meant to be a mostly drop-in replacement of the original Tango server, therefore the same server name and many commands & attributes are used. So far, the SCA channels and the MCS mode is not implemented, if those are needed, the original code should be used.
 
+Additionally, a basic simulator interface can be used during DAQ logic development if no hardware is available.
 
 Prerequisites
 -------------
