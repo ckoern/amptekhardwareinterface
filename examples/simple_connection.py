@@ -41,12 +41,14 @@ config_names = ["RESC", "CLCK", "TPEA", "GAIF", "GAIN", "RESL", "TFLA", "TPFA",
                "SCOT", "SCOG", "MCSL", "MCSH", "MCST", "AUO2", "TPMO", "GPED",
                "GPGA", "GPMC", "MCAE", "VOLU", "CON1", "CON2"]
 configs = amptek.GetTextConfiguration( config_names )
+
+print("----CURRENT CONFIG-----")
 for config in configs:
     print(config)
-
+print("-----------------------\n\n")
 # prepare a 10 second acquisition
 amptek.ClearSpectrum()
-amptek.SetPresetAccumulationTime(4)
+amptek.SetPresetAccumulationTime(10)
 
 # start acquisition
 amptek.Enable()
@@ -57,11 +59,12 @@ print("Acquisition started")
 while True:
     time.sleep(1)    
     status = amptek.updateStatus(-1)
+    print("\rAccumulation Time: {:.2f}s, Fast Counts: {:d}, Slow Counts: {:d}".format( status.AccTime(), status.FastCount(), status.SlowCount() ), end="", flush=True)
+
     # test if finished
     if not status.IsEnabled():
+        print("")
         break 
-    
-    print("\rAccumulation Time: {:.2f}s, Fast Counts: {:d}, Slow Counts: {:d}".format( status.AccTime(), status.FastCount(), status.SlowCount() ), end="", flush=True)
 
 print("Acquisition finished")
 

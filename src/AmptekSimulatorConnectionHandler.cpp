@@ -95,7 +95,6 @@ Packet AmptekSimulatorConnectionHandler::sendAndReceive( const Packet& request){
         char configs[ request.dataLength + 1 ];
         byteToChar( (byte*)&(request.at(DATA)), configs, request.dataLength );
         string configstring = buildConfigResponse(configs);
-        std::cout << configstring << std::endl;
         word16 len =  configstring.size();
         byte arr[len];
         charToByte(configstring.c_str(), arr, len);

@@ -247,11 +247,11 @@ bool AmptekHardwareInterface::SetPresetCounts(int c){
  * @return false on failure
  */
 bool AmptekHardwareInterface::SetTextConfiguration(std::vector<std::string> commands){
-    std::cout << "Configuration is\n";
-        for (auto cmd :commands){
-            std::cout << "\t" << cmd << "\n";
-        }
-        std::cout << std::endl;
+    // std::cout << "Configuration is\n";
+    // for (auto cmd :commands){
+    //     std::cout << "\t" << cmd << "\n";
+    // }
+    // std::cout << std::endl;
     try{
 
         stringstream cmdstream;
@@ -263,7 +263,7 @@ bool AmptekHardwareInterface::SetTextConfiguration(std::vector<std::string> comm
 
             // if max packet size (512) would be exceeded when adding this command, send the previous commands and clear the input stringstream
             if(  streamsize + cmd.size() > 511){
-                std::cout << "Send " << cmdstream.str() << std::endl;
+                //std::cout << "Send " << cmdstream.str() << std::endl;
                 expectAcknowledge( connection_handler->sendAndReceive( Packet::gernerateSetConfigurationRequest( cmdstream.str() ) ) );
                 cmdstream = stringstream();
             }
@@ -274,7 +274,7 @@ bool AmptekHardwareInterface::SetTextConfiguration(std::vector<std::string> comm
 
             // if this is the last command in the loop, send the stringstream even if max size is not reached
             if(  i == commands.size()-1 ){
-                std::cout << "Send " << cmdstream.str() << std::endl;
+                //std::cout << "Send " << cmdstream.str() << std::endl;
                 expectAcknowledge( connection_handler->sendAndReceive( Packet::gernerateSetConfigurationRequest( cmdstream.str() ) ) );
             }
         }
@@ -661,7 +661,7 @@ std::pair<AmptekSpectrum, AmptekStatus>  AmptekHardwareInterface::GetBufferedSpe
     int spectrum_bytesize = 3*spectrum_length;
     AmptekSpectrum buffered_spectrum( &(spectrumResponse.at(DATA) ), spectrum_length );
     AmptekStatus buffered_status(&(spectrumResponse.at(DATA + spectrum_bytesize)));
-    std:cout << buffered_status.SlowCount() << std::endl;
+    //std:cout << buffered_status.SlowCount() << std::endl;
     return  std::pair<AmptekSpectrum, AmptekStatus>( buffered_spectrum, buffered_status );
 }
 
@@ -689,7 +689,6 @@ bool AmptekHardwareInterface::StartCommtestStreaming(uint16_t min_channel,uint16
     std::cout << "Pulse Period: " << period << std::endl;
     try{
         Packet commtest_packet = Packet::generateCommtestStreamingRequest(min_channel, max_channel, increment, period);
-        std::cout << commtest_packet.toString() << std::endl;
         expectAcknowledge(connection_handler->sendAndReceive( commtest_packet) );
     }
     catch(AmptekException& e){
