@@ -122,7 +122,7 @@ class AmptekPX5(Device):
     def init_device(self):
         Device.init_device(self)
         self._max_info_age = 1
-        self.interface = AmptekHardwareInterface.AmptekHardwareInterface()
+        self.interface = AmptekHardwareInterface()
         if self.connection_mode == "UDP":
             self.interface.connectUDP( self.Hostname, self.port,  self.timeout_seconds)
         elif self.connection_mode == "USB":
